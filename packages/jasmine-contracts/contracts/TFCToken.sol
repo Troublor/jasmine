@@ -5,7 +5,7 @@ pragma solidity ^0.6.0;
 import "@openzeppelin/contracts/presets/ERC20PresetMinterPauser.sol";
 
 contract TFCToken is ERC20PresetMinterPauser {
-    constructor (uint256 initialSupply) public ERC20PresetMinterPauser("TurboField", "TFC"){
+    constructor (uint256 initialSupply) public ERC20PresetMinterPauser("TFCToken", "TFC"){
         _mint(_msgSender(), initialSupply);
     }
 

@@ -1,0 +1,25 @@
+{
+  "manifestVersion": "2.2",
+  "contracts": {},
+  "dependencies": {},
+  "name": "jasmine-contracts",
+  "version": "1.0.0",
+  "compiler": {
+    "compilerSettings": {
+      "optimizer": {
+        "enabled": false,
+        "runs": "200"
+      }
+    },
+    "typechain": {
+      "enabled": false,
+      "outDir": "contracts/types",
+      "target": "web3-v1"
+    },
+    "manager": "openzeppelin",
+    "solcVersion": "0.6.12",
+    "artifactsDir": "build/contracts",
+    "contractsDir": "contracts"
+  },
+  "telemetryOptIn": true
+}

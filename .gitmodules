@@ -1,0 +1,3 @@
+[submodule "packages/jasmine-eth-go"]
+	path = packages/jasmine-eth-go
+	url = https://github.com/Troublor/jasmine-eth-go.git

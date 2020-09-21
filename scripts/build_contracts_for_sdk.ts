@@ -23,7 +23,7 @@ console.log("Building golang contract dependency for TFCToken")
 
 // build go dependency with abigen
 let goPackage = "token"
-let output = path.join(__dirname, "..", "packages", "jasmine-sdk-go", "token", "TFCToken.go")
+let output = path.join(__dirname, "..", "packages", "jasmine-eth-go", "token", "TFCToken.go")
 let typeName = "TFCToken"
 result = child_process.spawnSync("abigen", [`--abi=${tmp}`, `--pkg=${goPackage}`, `--type=${typeName}`, `--out=${output}`], {
     cwd: __dirname,

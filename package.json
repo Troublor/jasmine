@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "dev:blockchian": "ganache-cli --deterministic",
-    "build:contracts": "ts-node scripts/build_contracts_for_sdk.ts"
+    "build:contracts": "yarn workspace jasmine-contracts build && ts-node scripts/build_contracts_for_sdk.ts"
   },
   "devDependencies": {
     "ganache-cli": "^6.10.2"

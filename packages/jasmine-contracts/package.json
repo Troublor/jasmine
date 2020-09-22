@@ -6,9 +6,10 @@
   "types": "contracts/types/*",
   "scripts": {
     "test": "mocha --require ts-node/register tests/**/*.test.ts",
-    "build": "yarn build:contracts && yarn build:types",
     "build:contracts": "oz compile --no-interactive",
-    "build:types": "typechain --target truffle-v5 --outDir contracts/types 'build/contracts/*.json'"
+    "build:types": "typechain --target truffle-v5 --outDir contracts/types 'build/contracts/*.json'",
+    "build": "yarn build:contracts && yarn build:types",
+    "deploy:TFCToken": "oz deploy --kind regular --no-interactive --network development TFCToken 1000"
   },
   "repository": {
     "type": "git",

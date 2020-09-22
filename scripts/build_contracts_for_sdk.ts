@@ -60,4 +60,9 @@ if (result.status !== 0) {
     process.exit(result.status);
 }
 
+fs.writeFileSync(
+    path.join(__dirname, "..", "packages", "jasmine-eth-ts", "src", "contracts", "TFCToken.abi.json"),
+    JSON.stringify(contractBuild['abi'], null, 2),
+);
+
 console.log("Dependency generated at", outputDir);

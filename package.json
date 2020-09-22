@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "dev:blockchian": "ganache-cli --deterministic",
+    "test:blockchian": "cd blockchain && bash reset.sh && bash start.sh",
     "build:contracts": "ts-node scripts/build_contracts_for_sdk.ts"
   },
   "devDependencies": {

@@ -64,5 +64,9 @@ fs.writeFileSync(
     path.join(__dirname, "..", "packages", "jasmine-eth-ts", "src", "contracts", "TFCToken.abi.json"),
     JSON.stringify(contractBuild['abi'], null, 2),
 );
+fs.writeFileSync(
+    path.join(__dirname, "..", "packages", "jasmine-eth-ts", "src", "contracts", "TFCToken.bin"),
+    contractBuild['bytecode'],
+);
 
 console.log("Dependency generated at", outputDir);

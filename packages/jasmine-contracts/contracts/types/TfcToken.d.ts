@@ -6,7 +6,8 @@ import { EventData, PastEventOptions } from "web3-eth-contract";
 
 export interface TfcTokenContract extends Truffle.Contract<TfcTokenInstance> {
   "new"(
-    initialSupply: number | BN | string,
+    initialHolders: string[],
+    initialSupplies: (number | BN | string)[],
     meta?: Truffle.TransactionDetails
   ): Promise<TfcTokenInstance>;
 }
@@ -296,6 +297,29 @@ export interface TfcTokenInstance extends Truffle.ContractInstance {
   };
 
   name(txDetails?: Truffle.TransactionDetails): Promise<string>;
+
+  one2manyTransfer: {
+    (
+      tos: string[],
+      amounts: (number | BN | string)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse<AllEvents>>;
+    call(
+      tos: string[],
+      amounts: (number | BN | string)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<boolean>;
+    sendTransaction(
+      tos: string[],
+      amounts: (number | BN | string)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      tos: string[],
+      amounts: (number | BN | string)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
 
   pause: {
     (txDetails?: Truffle.TransactionDetails): Promise<
@@ -617,6 +641,29 @@ export interface TfcTokenInstance extends Truffle.ContractInstance {
     };
 
     name(txDetails?: Truffle.TransactionDetails): Promise<string>;
+
+    one2manyTransfer: {
+      (
+        tos: string[],
+        amounts: (number | BN | string)[],
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<Truffle.TransactionResponse<AllEvents>>;
+      call(
+        tos: string[],
+        amounts: (number | BN | string)[],
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<boolean>;
+      sendTransaction(
+        tos: string[],
+        amounts: (number | BN | string)[],
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<string>;
+      estimateGas(
+        tos: string[],
+        amounts: (number | BN | string)[],
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<number>;
+    };
 
     pause: {
       (txDetails?: Truffle.TransactionDetails): Promise<

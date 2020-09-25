@@ -127,3 +127,5 @@ out
 gen
 
 blockchain/
+
+packages/.DS_Store

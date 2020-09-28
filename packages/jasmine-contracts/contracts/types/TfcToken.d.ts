@@ -5,11 +5,7 @@ import BN from "bn.js";
 import { EventData, PastEventOptions } from "web3-eth-contract";
 
 export interface TfcTokenContract extends Truffle.Contract<TfcTokenInstance> {
-  "new"(
-    initialHolders: string[],
-    initialSupplies: (number | BN | string)[],
-    meta?: Truffle.TransactionDetails
-  ): Promise<TfcTokenInstance>;
+  "new"(meta?: Truffle.TransactionDetails): Promise<TfcTokenInstance>;
 }
 
 export interface Approval {

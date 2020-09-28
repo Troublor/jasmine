@@ -8,6 +8,7 @@ import { Erc20PausableContract } from "./Erc20Pausable";
 import { Erc20PresetMinterPauserContract } from "./Erc20PresetMinterPauser";
 import { Ierc20Contract } from "./Ierc20";
 import { PausableContract } from "./Pausable";
+import { TfcManagerContract } from "./TfcManager";
 import { TfcTokenContract } from "./TfcToken";
 
 declare global {
@@ -20,6 +21,7 @@ declare global {
       require(name: "ERC20PresetMinterPauser"): Erc20PresetMinterPauserContract;
       require(name: "IERC20"): Ierc20Contract;
       require(name: "Pausable"): PausableContract;
+      require(name: "TFCManager"): TfcManagerContract;
       require(name: "TFCToken"): TfcTokenContract;
     }
   }
@@ -35,4 +37,5 @@ export {
 } from "./Erc20PresetMinterPauser";
 export { Ierc20Contract, Ierc20Instance } from "./Ierc20";
 export { PausableContract, PausableInstance } from "./Pausable";
+export { TfcManagerContract, TfcManagerInstance } from "./TfcManager";
 export { TfcTokenContract, TfcTokenInstance } from "./TfcToken";

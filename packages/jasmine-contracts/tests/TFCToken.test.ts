@@ -11,7 +11,11 @@ describe('TFCToken', () => {
 
     beforeEach(async () => {
         // mint 100 million tokens for each holder (20 in total)
-        TFC = await TFCTokenContract.new(accounts.slice(0, 20), Array(20).fill(100000000), {from: admin});
+        TFC = await TFCTokenContract.new({from: admin});
+        await TFC.grantRole(await TFC.MINTER_ROLE(), admin, {from: admin});
+        for (let account of accounts.slice(0, 20)) {
+            await TFC.mint(account, 100000000, {from: admin});
+        }
     });
 
     it('should have correct total supply', async function () {
@@ -46,28 +50,6 @@ describe('TFCToken', () => {
             let balance = await TFC.balanceOf(account);
             expect(balance.toNumber()).to.be.equal(0);
         }
-    });
-
-    it('should construct failed if initialHolders and initialSupplies have different length', function (done) {
-        TFCTokenContract.new(accounts.slice(0, 9), Array(20).fill(100000000), {from: admin})
-            .catch(() => {
-                done();
-            });
-    });
-
-    it('should construct failed if initialHolders contains zero addresses', function (done) {
-        TFCTokenContract.new(Array(20).fill("0x0000000000000000000000000000000000000000"), Array(20).fill(100000000), {from: admin})
-            .catch(() => {
-                done();
-            });
-    });
-
-    it('should construct successfully if initialHolders contains same addresses', async function () {
-        let tfc = await TFCTokenContract.new(Array(20).fill(admin), Array(20).fill(100000000), {from: admin});
-        let totalSupply = await tfc.totalSupply();
-        expect(totalSupply.toNumber()).to.be.equal(20 * 100000000);
-        let balance = await tfc.balanceOf(admin);
-        expect(balance.toNumber()).to.be.equal(20 * 100000000);
     });
 
     it('should be able to one to many transfer', async function () {

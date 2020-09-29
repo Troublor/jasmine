@@ -13,7 +13,7 @@ contract TFCManager {
 
     constructor() public {
         signer = msg.sender;
-        tfcToken = new TFCToken();
+        tfcToken = new TFCToken(new address[](0), new uint256[](0));
     }
 
     function claimTFC(uint256 amount, uint256 nonce, bytes memory sig)

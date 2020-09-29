@@ -1,7 +1,7 @@
 import {accounts, privateKeys, contract, web3,} from '@openzeppelin/test-environment';
 import {expectRevert} from "@openzeppelin/test-helpers";
 import {expect} from "chai";
-import * as BN from "bn.js";
+import BN from "bn.js";
 import {TfcManagerContract, TfcManagerInstance, TfcTokenContract, TfcTokenInstance} from '../contracts/types';
 
 describe('TFCManager', () => {
@@ -21,6 +21,11 @@ describe('TFCManager', () => {
         expect(TFC).to.be.not.undefined;
         // @ts-ignore
         expect(typeof TFC.address).to.be.equal("string");
+    });
+
+    it('should TFC token has no initial supply', async function () {
+        let totalSupply = await TFC.totalSupply();
+        expect(totalSupply.toString()).to.be.equal(new BN(0).toString());
     });
 
     it('should signer be creator', async function () {

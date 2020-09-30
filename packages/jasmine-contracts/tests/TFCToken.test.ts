@@ -51,6 +51,28 @@ describe('TFCToken', () => {
         }
     });
 
+    it('should construct failed if initialHolders and initialSupplies have different length', function (done) {
+        TFCTokenContract.new(accounts.slice(0, 9), Array(20).fill(100000000), {from: admin})
+            .catch(() => {
+                done();
+            });
+    });
+
+    it('should construct failed if initialHolders contains zero addresses', function (done) {
+        TFCTokenContract.new(Array(20).fill("0x0000000000000000000000000000000000000000"), Array(20).fill(100000000), {from: admin})
+            .catch(() => {
+                done();
+            });
+    });
+
+    it('should construct successfully if initialHolders contains same addresses', async function () {
+        let tfc = await TFCTokenContract.new(Array(20).fill(admin), Array(20).fill(100000000), {from: admin});
+        let totalSupply = await tfc.totalSupply();
+        expect(totalSupply.toNumber()).to.be.equal(20 * 100000000);
+        let balance = await tfc.balanceOf(admin);
+        expect(balance.toNumber()).to.be.equal(20 * 100000000);
+    });
+
     it('should be able to one to many transfer', async function () {
         await TFC.one2manyTransfer(accounts.slice(20), Array(10).fill(10000000), {from: admin});
         let balance = await TFC.balanceOf(admin);

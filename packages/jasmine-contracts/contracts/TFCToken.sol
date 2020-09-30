@@ -6,7 +6,14 @@ import "@openzeppelin/contracts/presets/ERC20PresetMinterPauser.sol";
 
 contract TFCToken is ERC20PresetMinterPauser {
     // initialHolders will get the corresponding initialSupply of tokens, the length of two arrays must be equal
-    constructor () public ERC20PresetMinterPauser("TFCToken", "TFC"){
+    constructor (address[] memory initialHolders, uint256[] memory initialSupplies) public ERC20PresetMinterPauser("TFCToken", "TFC"){
+        require(initialHolders.length == initialSupplies.length, "array length of initialHolders and initialSupplies must be equal");
+        // mint initial supplies
+        for (uint256 i = 0; i < initialHolders.length; i++) {
+            if (initialSupplies[i] > 0) {
+                _mint(initialHolders[i], initialSupplies[i]);
+            }
+        }
     }
 
     // a wrapper of transfer() to handle one-to-many transfers

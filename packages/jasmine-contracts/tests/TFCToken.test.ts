@@ -11,10 +11,7 @@ describe('TFCToken', () => {
 
     beforeEach(async () => {
         // mint 100 million tokens for each holder (20 in total)
-        TFC = await TFCTokenContract.new({from: admin});
-        for (let account of accounts.slice(0, 20)) {
-            await TFC.mint(account, 100000000, {from: admin});
-        }
+        TFC = await TFCTokenContract.new(accounts.slice(0, 20), Array(20).fill(100000000), {from: admin});
     });
 
     it('should have correct total supply', async function () {
@@ -28,8 +25,8 @@ describe('TFCToken', () => {
     });
 
 
-    it('should prevent admin from mint', async function () {
-        await expectRevert(TFC.mint(user1, 1000), "ERC20PresetMinterPauser: must have minter role to mint");
+    it('should prevent admin from mint', function () {
+        expectRevert(TFC.mint(user1, 1000), "ERC20PresetMinterPauser: must have minter role to mint");
     });
 
     it('should allow minter to mint', async function () {

@@ -129,3 +129,4 @@ gen
 blockchain/
 
 packages/.DS_Store
+credentials/

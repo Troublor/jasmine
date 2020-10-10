@@ -1,6 +1,8 @@
 {
   "manifestVersion": "2.2",
-  "contracts": {},
+  "contracts": {
+    "TFCManager": "TFCManager"
+  },
   "dependencies": {},
   "name": "jasmine-contracts",
   "version": "1.0.0",

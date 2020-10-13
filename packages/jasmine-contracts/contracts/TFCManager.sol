@@ -4,11 +4,17 @@ pragma solidity ^0.6.0;
 
 import "./TFCToken.sol";
 
+// TFCManager provides the functionality to let users claim TFC token by themselves. (gas paid by users)
+// The deployment of TFCManager will future deploy the corresponding TFC ERC20 contract in the constructor.
+// So there is no need to deploy ERC20 contract separately.
 contract TFCManager {
+    // A map of nonce that has been used
     mapping(uint256 => bool) public usedNonces;
 
+    // the address who has the privilege to sign message of claiming TFC token
     address public signer;
 
+    // the address of TFC ERC20 smart contract
     TFCToken public tfcToken;
 
     constructor() public {
@@ -16,6 +22,8 @@ contract TFCManager {
         tfcToken = new TFCToken(new address[](0), new uint256[](0));
     }
 
+    // claim TFC token using the signature signed by authorizer.
+    // The amount and nonce must be the same as that used in the signature.
     function claimTFC(uint256 amount, uint256 nonce, bytes memory sig)
     public
     {

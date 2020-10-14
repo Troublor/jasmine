@@ -2,6 +2,7 @@ import {Module} from '@nestjs/common';
 import {ConfigModule} from "@nestjs/config";
 import configuration from "./config/configuration";
 import TfcModule from "./modules/tfc/tfc.module";
+import InfoQueryModule from "./modules/info-query/info-query.module";
 
 @Module({
     imports: [
@@ -9,7 +10,8 @@ import TfcModule from "./modules/tfc/tfc.module";
             isGlobal: true,
             load: [configuration]
         }),
-        TfcModule,
+        // TfcModule,
+        InfoQueryModule,
     ],
     controllers: [],
     providers: [],

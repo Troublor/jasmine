@@ -4,7 +4,7 @@ import {ConfigService} from "@nestjs/config";
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {cors: true});
     const config = app.get<ConfigService>(ConfigService);
     const options = new DocumentBuilder()
         .setTitle('Jasmine Project Ethereum RESTful API')

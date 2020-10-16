@@ -1,19 +1,25 @@
-import {Controller, Get, Param, ParseIntPipe, Query} from "@nestjs/common";
+import {
+    BadRequestException,
+    Controller,
+    Get,
+    HttpException,
+    InternalServerErrorException,
+    NotFoundException,
+    Param,
+    ParseIntPipe,
+    Query
+} from "@nestjs/common";
 import InfoQueryService from "./info-query.service";
 import {SortOrder} from "./models/sort-order";
-import BlocksQueryModel, {BlockBasicInfo} from "./models/blocks-query.response";
-import MetadataModel from "./models/metadata.model";
-import BlockInfoResponse, {BlockInfo} from "./models/block-info.response";
-import TransactionsQueryResponse, {TransactionBasicInfo} from "./models/transactions-query.response";
-import TransactionInfoResponse, {
-    ApprovalEvent,
-    TransactionInfo,
-    TransferEvent
-} from "./models/transaction-info.response";
+import BlocksQueryModel from "./models/blocks-query.response";
+import BlockInfoResponse from "./models/block-info.response";
+import TransactionsQueryResponse from "./models/transactions-query.response";
+import TransactionInfoResponse from "./models/transaction-info.response";
 import AccountTransactionsResponse from "./models/account-transactions.response";
 import AccountBalanceResponse from "./models/account-balance.response";
-import ContractStatusResponse, {MintEvent} from "./models/contract-status.response";
+import ContractStatusResponse from "./models/contract-status.response";
 import {ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation} from "@nestjs/swagger";
+import {Address, validateAndConvertAddress} from "jasmine-eth-ts";
 
 @Controller()
 export default class InfoQueryController {
@@ -26,41 +32,53 @@ export default class InfoQueryController {
     @ApiOperation({summary: "Query blocks"})
     @ApiBadRequestResponse({description: "Invalid query parameters"})
     @ApiOkResponse({type: BlocksQueryModel})
-    public getBlocks(@Query("sortOrder") sortOrder: SortOrder,
-                     @Query("page", ParseIntPipe) page: number,
-                     @Query("count", ParseIntPipe) count: number): BlocksQueryModel {
-        const blocks: BlockBasicInfo[] = [
-            {
-                hash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b46",
-                height: 1,
-                parentHash: "0x2302e1c0b972d00932deb5dab9eb2982f570597d9d42504c05d9c2147eaf9c88",
-                timestamp: 1429287689,
-                transactions: [
-                    "0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b",
-                ]
-            },
-            {
-                hash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b47",
-                height: 2,
-                parentHash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b46",
-                timestamp: 1429288689,
-                transactions: [
-                    "0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8c",
-                ]
-            }
-        ];
-        const pageSize = count;
-        return <BlocksQueryModel>{
-            code: 200,
-            msg: "OK",
-            data: {
-                metadata: <MetadataModel>{
-                    totalCount: blocks[blocks.length - 1].height,
-                    page: page,
-                    count: Math.ceil(blocks.length / pageSize),
-                },
-                blocks: blocks.slice(pageSize * (page - 1), pageSize * page),
-            }
+    public async getBlocks(@Query("sortOrder") sortOrder: SortOrder,
+                           @Query("page", ParseIntPipe) page: number,
+                           @Query("count", ParseIntPipe) count: number): Promise<BlocksQueryModel> {
+        if (SortOrder.ASCENDING !== sortOrder && SortOrder.DESCENDING !== sortOrder) {
+            throw new BadRequestException(<TransactionsQueryResponse>{
+                code: 400,
+                msg: "Query parameter 'sortOrder' must be 'asc' or 'desc'",
+                data: null,
+            });
+        }
+
+        if (page <= 0) {
+            throw new BadRequestException(<TransactionsQueryResponse>{
+                code: 400,
+                msg: "Query parameter 'page' must be positive integer",
+                data: null,
+            });
+        }
+
+        if (count <= 0) {
+            throw new BadRequestException(<TransactionsQueryResponse>{
+                code: 400,
+                msg: "Query parameter 'count' must be positive integer",
+                data: null,
+            });
+        }
+
+        try {
+            let result = await this.infoQueryService.getBlocks(sortOrder, page, count);
+            return {
+                code: 200,
+                msg: "OK",
+                data: {
+                    metadata: {
+                        totalCount: await this.infoQueryService.getBlockNumber(),
+                        page: page,
+                        count: result[1],
+                    },
+                    blocks: result[0],
+                }
+            };
+        } catch (e) {
+            throw new InternalServerErrorException(<TransactionsQueryResponse>{
+                code: 500,
+                msg: e.toString(),
+                data: null,
+            })
         }
     }
 
@@ -69,60 +87,40 @@ export default class InfoQueryController {
     @ApiBadRequestResponse({description: "Invalid block height"})
     @ApiNotFoundResponse({description: "Block not found"})
     @ApiOkResponse({type: BlockInfoResponse})
-    public getBlockInfo(@Query("height", ParseIntPipe) height: number): BlockInfoResponse {
-        const blocks: BlockInfo[] = [
-            {
-                hash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b46",
-                height: 1,
-                parentHash: "0x2302e1c0b972d00932deb5dab9eb2982f570597d9d42504c05d9c2147eaf9c88",
-                nonce: "0xfb6e1a62d119228b",
-                sha3Uncles: "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-                logsBloom: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-                transactionsRoot: "0x3a1b03875115b79539e5bd33fb00d8f7b7cd61929d5a3c574f507b8acf415bee",
-                stateRoot: "0xf1133199d44695dfa8fd1bcfe424d82854b5cebef75bddd7e40ea94cda515bcb",
-                miner: "0x8888f1f195afa192cfee860698584c030f4c9db1",
-                difficulty: '21345678965432',
-                totalDifficulty: '324567845321',
-                size: 616,
-                extraData: "0x",
-                gasLimit: 3141592,
-                gasUsed: 21662,
-                timestamp: 1429287689,
-                transactions: [
-                    "0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b",
-                ],
-                uncles: [],
-            },
-            {
-                hash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b47",
-                height: 2,
-                parentHash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b46",
-                nonce: "0xfb6e1a62d119228c",
-                sha3Uncles: "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-                logsBloom: "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-                transactionsRoot: "0x3a1b03875115b79539e5bd33fb00d8f7b7cd61929d5a3c574f507b8acf415bee",
-                stateRoot: "0xf1133199d44695dfa8fd1bcfe424d82854b5cebef75bddd7e40ea94cda515bcb",
-                miner: "0x8888f1f195afa192cfee860698584c030f4c9db1",
-                difficulty: '21345678965432',
-                totalDifficulty: '324567845321',
-                size: 616,
-                extraData: "0x",
-                gasLimit: 3141592,
-                gasUsed: 21662,
-                timestamp: 1429288689,
-                transactions: [
-                    "0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8c",
-                ],
-                uncles: [],
-            }
-        ];
+    public async getBlockInfo(@Query("height", ParseIntPipe) height: number): Promise<BlockInfoResponse> {
+        if (height <= 0) {
+            throw new BadRequestException(<TransactionsQueryResponse>{
+                code: 400,
+                msg: "Block height must be positive integer",
+                data: null,
+            });
+        }
 
-        return <BlockInfoResponse>{
-            code: 200,
-            msg: "OK",
-            data: {
-                block: blocks.find(value => value.height === height),
+        try {
+            const block = await this.infoQueryService.getBlockInfo(height);
+            if (!block) {
+                throw new NotFoundException(<BlockInfoResponse>{
+                    code: 404,
+                    msg: "Block not found",
+                    data: null,
+                });
             }
+            return {
+                code: 200,
+                msg: "OK",
+                data: {
+                    block: block,
+                }
+            };
+        } catch (e) {
+            if (e instanceof HttpException) {
+                throw e;
+            }
+            throw new InternalServerErrorException(<TransactionInfoResponse>{
+                code: 500,
+                msg: e.toString(),
+                data: null,
+            });
         }
     }
 
@@ -130,134 +128,151 @@ export default class InfoQueryController {
     @ApiOperation({summary: "Query transactions"})
     @ApiBadRequestResponse({description: "Invalid query parameters"})
     @ApiOkResponse({type: TransactionsQueryResponse})
-    public getTxs(@Query('sortOrder') sortOrder: SortOrder,
-                  @Query('page', ParseIntPipe) page: number,
-                  @Query('count', ParseIntPipe) count: number): TransactionsQueryResponse {
-        const txs: TransactionBasicInfo[] = [
-            {
-                hash: "0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b",
-                blockHash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b46",
-                blockHeight: 1,
-            },
-            {
-                hash: "0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8c",
-                blockHash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b47",
-                blockHeight: 2,
-            }
-        ];
+    public async getTxs(@Query('sortOrder') sortOrder: SortOrder,
+                        @Query('page', ParseIntPipe) page: number,
+                        @Query('count', ParseIntPipe) count: number): Promise<TransactionsQueryResponse> {
+        if (SortOrder.ASCENDING !== sortOrder && SortOrder.DESCENDING !== sortOrder) {
+            throw new BadRequestException(<TransactionsQueryResponse>{
+                code: 400,
+                msg: "Query parameter 'sortOrder' must be 'asc' or 'desc'",
+                data: null,
+            });
+        }
 
-        const pageSize = count;
+        if (page <= 0) {
+            throw new BadRequestException(<TransactionsQueryResponse>{
+                code: 400,
+                msg: "Query parameter 'page' must be positive integer",
+                data: null,
+            });
+        }
 
-        return <TransactionsQueryResponse>{
-            code: 200,
-            msg: "OK",
-            data: {
-                metadata: {
-                    totalCount: txs.length,
-                    page: page,
-                    count: Math.ceil(txs.length / pageSize),
-                },
-                txs: txs.slice(pageSize * (page - 1), pageSize * page),
+        if (count <= 0) {
+            throw new BadRequestException(<TransactionsQueryResponse>{
+                code: 400,
+                msg: "Query parameter 'count' must be positive integer",
+                data: null,
+            });
+        }
+
+        try {
+            let txs = await this.infoQueryService.getTransactions();
+            if (sortOrder === SortOrder.DESCENDING) {
+                txs = txs.reverse();
             }
+            return {
+                code: 200,
+                msg: "OK",
+                data: {
+                    metadata: {
+                        totalCount: await this.infoQueryService.getBlockNumber(),
+                        page: page,
+                        count: Math.ceil(txs.length / count)
+                    },
+                    txs: txs,
+                }
+            };
+        } catch (e) {
+            throw new InternalServerErrorException(<TransactionsQueryResponse>{
+                code: 500,
+                msg: e.toString(),
+                data: null,
+            })
         }
     }
 
-    @Get("tx")
+    @Get("tx/:txHash")
     @ApiOperation({summary: "Get transaction information"})
     @ApiBadRequestResponse({description: "Invalid transaction hash"})
-    @ApiNotFoundResponse({description:"Transaction not found"})
+    @ApiNotFoundResponse({description: "Transaction not found"})
     @ApiOkResponse({type: TransactionInfoResponse})
-    public getTx(@Query('txHash') txHash: string): TransactionInfoResponse {
-        const txs: TransactionInfo[] = [
-            {
-                hash: "0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8b",
-                blockHash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b46",
-                blockHeight: 1,
-                nonce: 2,
-                transactionIndex: 0,
-                from: "0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b",
-                to: "0x6295ee1b4f6dd65047762f924ecd367c17eabf8f",
-                value: '123450000000000000',
-                gasUsed: 314159,
-                gasPrice: '2000000000000',
-                input: "0x57cb2fc4",
-                status: true,
-                events: [
-                    <TransferEvent>{
-                        params: {
-                            from: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
-                            to: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
-                            value: "100000000000000000",
-                        },
-                        raw: {
-                            data: "0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385",
-                            topics: ['0xfd43ade1c09fade1c0d57a7af66ab4ead7c2c2eb7b11a91ffdd57a7af66ab4ead7', '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385']
-                        },
-                        name: "Transfer",
-                        signature: "0xfd43ade1c09fade1c0d57a7af66ab4ead7c2c2eb7b11a91ffdd57a7af66ab4ead7",
-                        address: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
-                    }
-                ],
-            },
-            {
-                hash: "0x9fc76417374aa880d4449a1f7f31ec597f00b1f6f3dd2d66f4c9c6c445836d8c",
-                blockHash: "0xef95f2f1ed3ca60b048b4bf67cde2195961e0bba6f70bcbea9a2c4e133e34b47",
-                blockHeight: 2,
-                nonce: 2,
-                transactionIndex: 0,
-                from: "0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b",
-                to: "0x6295ee1b4f6dd65047762f924ecd367c17eabf8f",
-                value: '123450000000000000',
-                gasUsed: 314159,
-                gasPrice: '2000000000000',
-                input: "0x57cb2fc4",
-                status: true,
-                events: [
-                    <ApprovalEvent>{
-                        params: {
-                            owner: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
-                            spender: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
-                            value: "100000000000000000",
-                        },
-                        raw: {
-                            data: "0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385",
-                            topics: ['0xfd43ade1c09fade1c0d57a7af66ab4ead7c2c2eb7b11a91ffdd57a7af66ab4ead7', '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385']
-                        },
-                        name: "Transfer",
-                        signature: "0xfd43ade1c09fade1c0d57a7af66ab4ead7c2c2eb7b11a91ffdd57a7af66ab4ead7",
-                        address: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
-                    }
-                ],
+    public async getTx(@Param('txHash') txHash: string): Promise<TransactionInfoResponse> {
+        if (!this.infoQueryService.validateTxHash(txHash)) {
+            throw new BadRequestException(<TransactionInfoResponse>{
+                code: 400,
+                msg: "Invalid transaction hash",
+                data: null,
+            });
+        }
+        try {
+            const txInfo = await this.infoQueryService.getTransaction(txHash);
+            if (!txInfo) {
+                throw new NotFoundException(<TransactionInfoResponse>{
+                    code: 404,
+                    msg: "Transaction not found",
+                    data: null,
+                });
             }
-        ];
-
-        return {
-            code: 200,
-            msg: "OK",
-            data: {
-                tx: txs.find(value => value.hash === txHash),
+            return {
+                code: 200,
+                msg: "OK",
+                data: {
+                    tx: txInfo,
+                }
+            };
+        } catch (e) {
+            if (e instanceof HttpException) {
+                throw e;
             }
-        };
+            throw new InternalServerErrorException(<TransactionInfoResponse>{
+                code: 500,
+                msg: e.toString(),
+                data: null,
+            });
+        }
     }
 
     @Get("txs/:address")
     @ApiOperation({summary: "Query the history transactions of an account"})
     @ApiBadRequestResponse({description: "Invalid query parameters"})
     @ApiOkResponse({type: AccountTransactionsResponse})
-    public getAccountTxs(@Param('address') address: string,
-                         @Query('page', ParseIntPipe) page: number,
-                         @Query('count', ParseIntPipe) count: number): AccountTransactionsResponse {
-        return {
-            code: 200,
-            msg: "OK",
-            data: {
-                metadata: {
-                    totalCount: 2,
-                    page: page,
-                    count: 2,
-                },
-                txHashes: ["0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe"]
+    public async getAccountTxs(@Param('address') address: string,
+                               @Query('page', ParseIntPipe) page: number,
+                               @Query('count', ParseIntPipe) count: number): Promise<AccountTransactionsResponse> {
+        if (page <= 0) {
+            throw new BadRequestException(<AccountTransactionsResponse>{
+                code: 400,
+                msg: "Query parameter 'page' must be positive integer",
+                data: null,
+            });
+        }
+
+        if (count <= 0) {
+            throw new BadRequestException(<AccountTransactionsResponse>{
+                code: 400,
+                msg: "Query parameter 'count' must be positive integer",
+                data: null,
+            });
+        }
+
+        const ethAddress = validateAndConvertAddress(address);
+        if (!ethAddress) {
+            throw new BadRequestException(<AccountTransactionsResponse>{
+                code: 400,
+                msg: "Invalid Ethereum address",
+                data: null,
+            })
+        }
+        try {
+            const txHashes = await this.infoQueryService.getAccountTxs(address as Address);
+            return {
+                code: 200,
+                msg: "OK",
+                data: {
+                    metadata: {
+                        totalCount: await this.infoQueryService.getBlockNumber(),
+                        page: page,
+                        count: Math.ceil(txHashes.length / count),
+                    },
+                    txHashes: txHashes.slice(count * (page - 1), count * page),
+                }
             }
+        } catch (e) {
+            throw new InternalServerErrorException(<AccountTransactionsResponse>{
+                code: 500,
+                msg: e.toString(),
+                data: null,
+            })
         }
     }
 
@@ -265,48 +280,53 @@ export default class InfoQueryController {
     @ApiOperation({summary: "Query account ERC20 balance"})
     @ApiBadRequestResponse({description: "Invalid account address"})
     @ApiOkResponse({type: AccountBalanceResponse})
-    public getAccountBalance(@Param('address') address: string): AccountBalanceResponse {
-        return {
-            code: 200,
-            msg: "OK",
-            data: {
-                balance: '1000000000000000000',
-            }
+    public async getAccountBalance(@Param('address') address: string): Promise<AccountBalanceResponse> {
+        const ethAddress = validateAndConvertAddress(address)
+        if (!ethAddress) {
+            throw new BadRequestException(<AccountBalanceResponse>{
+                code: 400,
+                msg: "Invalid account address",
+                data: null,
+            });
+        }
+        const balance = await this.infoQueryService.getAccountBalance(address as Address);
+        try {
+            return {
+                code: 200,
+                msg: "OK",
+                data: {
+                    balance: "0x" + balance.toString("hex"),
+                },
+            };
+        } catch (e) {
+            throw new InternalServerErrorException(<AccountBalanceResponse>{
+                code: 500,
+                msg: e.toString(),
+                data: null,
+            })
         }
     }
 
     @Get("status/:contractAddress")
     @ApiOperation({summary: "Get contract status"})
-    @ApiBadRequestResponse({description: "Invalid contract address"})
-    @ApiNotFoundResponse({description: "Contract not found"})
+    // contract address is useless
+    // @ApiBadRequestResponse({description: "Invalid contract address"})
+    // @ApiNotFoundResponse({description: "Contract not found"})
     @ApiOkResponse({type: ContractStatusResponse})
-    public getContractStatus(@Param('contractAddress') contractAddress: string): ContractStatusResponse {
-        return {
-            code: 200,
-            msg: "OK",
-            data: {
-                name: "TFCToken",
-                symbol: "TFC",
-                decimals: 18,
-                totalSupply: "1000000000000000000",
-                address: contractAddress,
-                mintEvents: [
-                    <MintEvent>{
-                        params: {
-                            from: "0x0",
-                            to: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
-                            value: "100000000000000000",
-                        },
-                        raw: {
-                            data: "0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385",
-                            topics: ['0xfd43ade1c09fade1c0d57a7af66ab4ead7c2c2eb7b11a91ffdd57a7af66ab4ead7', '0x7f9fade1c0d57a7af66ab4ead79fade1c0d57a7af66ab4ead7c2c2eb7b11a91385']
-                        },
-                        name: "Transfer",
-                        signature: "0xfd43ade1c09fade1c0d57a7af66ab4ead7c2c2eb7b11a91ffdd57a7af66ab4ead7",
-                        address: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
-                    }
-                ]
+    public async getContractStatus(@Param('contractAddress') contractAddress: string): Promise<ContractStatusResponse> {
+        try {
+            return {
+                code: 200,
+                msg: "OK",
+                data: await this.infoQueryService.getContractStatus(),
             }
+        } catch (e) {
+            throw new InternalServerErrorException(<ContractStatusResponse>{
+                code: 500,
+                msg: e.toString(),
+                data: null,
+            });
         }
+
     }
 }

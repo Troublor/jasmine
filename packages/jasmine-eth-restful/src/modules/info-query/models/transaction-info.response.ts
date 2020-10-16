@@ -60,6 +60,9 @@ export class TransferEvent extends ContractEvent {
         description: "ERC20 Transfer event"
     })
     params: TransferEventParams;
+
+    @ApiProperty()
+    name: "Transfer";
 }
 
 export class ApprovalEventParams {
@@ -79,6 +82,9 @@ export class ApprovalEvent extends ContractEvent {
         description: "ERC20 Approval event"
     })
     params: ApprovalEventParams;
+
+    @ApiProperty()
+    name: "Approval";
 }
 
 export class TransactionInfo extends TransactionBasicInfo {

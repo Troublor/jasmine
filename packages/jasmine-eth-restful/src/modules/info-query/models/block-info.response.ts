@@ -43,13 +43,13 @@ export class BlockInfo extends BlockBasicInfo {
         type: String,
         description: "difficulty of the block",
     })
-    difficulty: string;
+    difficulty: number;
 
     @ApiProperty({
         type: String,
         description: "total difficulty of current blockchain",
     })
-    totalDifficulty: string;
+    totalDifficulty: number;
 
     @ApiProperty({
         type: Number,

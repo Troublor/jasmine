@@ -1,10 +1,10 @@
 import ResponseModel from "./response.model";
 import {ApiProperty} from "@nestjs/swagger";
-import {TransferEvent} from "./transaction-info.response";
+import {ContractEvent, TransferEvent} from "./transaction-info.response";
 
 export class MintEventParams {
     @ApiProperty()
-    from: "0x0";
+    from: "0x0000000000000000000000000000000000000000";
 
     @ApiProperty()
     to: string;
@@ -13,12 +13,15 @@ export class MintEventParams {
     value: string;
 }
 
-export class MintEvent extends TransferEvent {
+export class MintEvent extends ContractEvent {
     @ApiProperty({
         type: MintEventParams,
         description: "a special type of Transfer event which mint new ERC20 tokens"
     })
     params: MintEventParams;
+
+    @ApiProperty()
+    name: "Mint";
 }
 
 export class ContractStatus {

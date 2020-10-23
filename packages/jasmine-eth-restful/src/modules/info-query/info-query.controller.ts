@@ -169,7 +169,7 @@ export default class InfoQueryController {
                         page: page,
                         count: Math.ceil(txs.length / count)
                     },
-                    txs: txs,
+                    txs: txs.slice(count * (page - 1), count * page),
                 }
             };
         } catch (e) {

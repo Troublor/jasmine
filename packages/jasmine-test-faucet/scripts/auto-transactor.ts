@@ -27,9 +27,9 @@ class AutoTransactor {
 
     public async start() {
         console.log("Test data faucet start");
-        console.log(this.transactor1.address, "claims 1 TFC every 30 minutes");
-        console.log(this.transactor1.address, "transfers 0.3 TFC to", this.transactor2.address, "every 10 minutes");
-        console.log(this.transactor1.address, "delegate transfers 0.3 TFC from", this.transactor2.address, "every 10 minutes");
+        console.log(this.transactor1.address, "claims 1 TFC every 120 minutes");
+        console.log(this.transactor1.address, "transfers 0.3 TFC to", this.transactor2.address, "every 60 minutes");
+        console.log(this.transactor1.address, "delegate transfers 0.3 TFC from", this.transactor2.address, "every 60 minutes");
 
         let claimTFCIntervalHandle;
         let transferTFCIntervalHandle;
@@ -46,7 +46,7 @@ class AutoTransactor {
             } catch (e) {
                 console.log(new Date().toLocaleString(), "Claim TFC error:", e);
             }
-        }, 30 * 60 * 1000);
+        }, 120 * 60 * 1000);
 
         setTimeout(async () => {
             try {
@@ -60,8 +60,8 @@ class AutoTransactor {
                 } catch (e) {
                     console.log(new Date().toLocaleString(), "Transfer TFC error:", e);
                 }
-            }, 10 * 60 * 1000);
-        }, 5 * 60 * 1000);
+            }, 60 * 60 * 1000);
+        }, 30 * 60 * 1000);
 
         transferFromTFCIntervalHandle = setInterval(async () => {
             try {
@@ -69,7 +69,7 @@ class AutoTransactor {
             } catch (e) {
                 console.log(new Date().toLocaleString(), "TransferFrom TFC error:", e);
             }
-        }, 10 * 60 * 1000);
+        }, 60 * 60 * 1000);
 
         const stopHandler = () => {
             clearInterval(claimTFCIntervalHandle);

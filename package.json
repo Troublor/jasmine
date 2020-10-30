@@ -10,14 +10,18 @@
     "packages/jasmine-*"
   ],
   "scripts": {
+    "dev:deploy-contracts": "ts-node scripts/deploy-contract.ts",
     "dev:blockchian": "ganache-cli --deterministic",
     "test:blockchian": "cd blockchain && bash reset.sh && bash start.sh",
     "build:contracts": "ts-node scripts/build_contracts_for_sdk.ts"
   },
   "devDependencies": {
+    "@types/prompts": "^2.0.9",
     "ganache-cli": "^6.10.2"
   },
   "dependencies": {
+    "bn.js": "^5.1.3",
+    "prompts": "^2.4.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   }

@@ -14,6 +14,7 @@ let sdk: SDK;
             type: 'text',
             name: 'endpoint',
             message: 'Tell me your Ethereum endpoint?',
+            initial: "http://localhost:8545"
         });
         try {
             sdk = new SDK(response0.endpoint);
@@ -82,6 +83,8 @@ let sdk: SDK;
     try {
         const tfcAddress = await manager.tfcAddress();
         console.log(`TFCToken (ERC20) contract address: ${tfcAddress}`);
+        console.log(`Admin account address: ${deployer.address}`);
+        console.log(`Admin account private key: ${deployer.privateKey}`);
     } catch (e) {
         console.error(`Fetch TFCToken contract address error: ${e.toString()}`);
         return;

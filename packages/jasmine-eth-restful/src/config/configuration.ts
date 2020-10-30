@@ -10,7 +10,7 @@ export default async () => {
     return {
         port: 8989,
         ethereum: {
-            endpoint: "wss://rinkeby.infura.io/ws/v3/892a7c25469e4cdfaa080643d5073ba0",
+            endpoint: "wss://rinkeby.infura.io/ws/v3/e8e5b9ad18ad4daeb0e01a522a989d66",
             tfcAddress: "0x44e3BAF945f70fA8a926A84563492662BC9a5c11",
             managerAddress: "0xb402822CC243E8f86E28c2F79c67DAcD14A9cc01",
         },

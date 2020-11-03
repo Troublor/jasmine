@@ -12,6 +12,7 @@
   "scripts": {
     "dev:deploy-contracts": "ts-node scripts/deploy-contract.ts",
     "dev:start-blockchain": "ts-node scripts/start-ganache.ts",
+    "dev:sign-TFC-claim": "ts-node scripts/sign-TFC-claim.ts",
     "dev:blockchian": "ganache-cli --deterministic",
     "test:blockchian": "cd blockchain && bash reset.sh && bash start.sh",
     "build:contracts": "ts-node scripts/build_contracts_for_sdk.ts"

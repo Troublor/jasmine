@@ -83,6 +83,8 @@ import * as child_process from "child_process";
         for (let alloc of accounts) {
             args.push("--account", `${alloc.secretKey},${alloc.balance}`);
         }
+    }else {
+        args.push("--deterministic");
     }
     child_process.spawnSync("ganache-cli", args, {
         stdio: "inherit"

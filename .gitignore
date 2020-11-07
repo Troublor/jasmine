@@ -130,3 +130,5 @@ blockchain/
 
 packages/.DS_Store
 credentials/
+
+packages/jasmine-contracts/.DS_Store

@@ -49,16 +49,20 @@ let actionForEachContract = (contractName: string) => {
     let goPackage = "token"
     let output = path.join(__dirname, "..", "packages", "jasmine-eth-go", "token", `${contractName}.go`)
     result = child_process.spawnSync(
-        path.join(__dirname, "..", "libexec", "abigen"),
+        "abige",
         [`--bin=${bin}`, `--abi=${abi}`, `--pkg=${goPackage}`, `--type=${contractName}`, `--out=${output}`],
         {
             cwd: __dirname,
         }
     );
-    console.log(result.stdout.toString())
-    if (result.status !== 0) {
-        console.error(result.stderr.toString());
-        process.exit(result.status);
+    if (result.error) {
+        console.warn("Generate golang contract binding failed, did you have abigen in PATH?")
+    }else {
+        console.log(result.stdout.toString());
+        if (result.status !== 0) {
+            console.error(result.stderr.toString());
+            process.exit(result.status);
+        }
     }
 
     console.log("Copying bytecode and ABI for TFCToken");

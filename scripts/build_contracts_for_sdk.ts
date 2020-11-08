@@ -32,6 +32,9 @@ if (result.status !== 0) {
 }
 
 let actionForEachContract = (contractName: string) => {
+    if (!fs.existsSync(path.join(__dirname, "tmp"))) {
+        fs.mkdirSync(path.join(__dirname, "tmp"));
+    }
     // save abi to a temp file
     let abi = path.join(__dirname, "tmp", `${contractName}.abi`);
     let bin = path.join(__dirname, "tmp", `${contractName}.bin`);

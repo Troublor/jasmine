@@ -15,7 +15,9 @@
     "dev:sign-TFC-claim": "ts-node scripts/sign-TFC-claim.ts",
     "dev:blockchian": "ganache-cli --deterministic",
     "test:blockchian": "cd blockchain && bash reset.sh && bash start.sh",
-    "build:contracts": "ts-node scripts/build_contracts_for_sdk.ts"
+    "build:contracts": "ts-node scripts/build_contracts_for_sdk.ts",
+    "build:ts-sdk": "yarn workspace jasmine-eth-ts build",
+    "build": "yarn build:contracts yarn"
   },
   "devDependencies": {
     "@types/prompts": "^2.0.9",

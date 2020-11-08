@@ -49,7 +49,7 @@ let actionForEachContract = (contractName: string) => {
     let goPackage = "token"
     let output = path.join(__dirname, "..", "packages", "jasmine-eth-go", "token", `${contractName}.go`)
     result = child_process.spawnSync(
-        "abigen",
+        path.join(__dirname, "..", "libexec", "abigen"),
         [`--bin=${bin}`, `--abi=${abi}`, `--pkg=${goPackage}`, `--type=${contractName}`, `--out=${output}`],
         {
             cwd: __dirname,

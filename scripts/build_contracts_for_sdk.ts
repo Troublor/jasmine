@@ -57,7 +57,7 @@ let actionForEachContract = (contractName: string) => {
     );
     if (result.error) {
         console.warn("Generate golang contract binding failed, did you have abigen in PATH?")
-    }else {
+    } else {
         console.log(result.stdout.toString());
         if (result.status !== 0) {
             console.error(result.stderr.toString());
@@ -76,14 +76,16 @@ let actionForEachContract = (contractName: string) => {
         contractBuild['bytecode'],
     );
 
-    fs.writeFileSync(
-        path.join(__dirname, "..", "packages", "jasmine-eth-python", "jasmine_eth", "contracts", `${contractName}.abi.json`),
-        JSON.stringify(contractBuild['abi'], null, 2),
-    );
-    fs.writeFileSync(
-        path.join(__dirname, "..", "packages", "jasmine-eth-python", "jasmine_eth", "contracts", `${contractName}.bin`),
-        contractBuild['bytecode'],
-    );
+    if (fs.existsSync(path.join(__dirname, "..", "packages", "jasmine-eth-python"))) {
+        fs.writeFileSync(
+            path.join(__dirname, "..", "packages", "jasmine-eth-python", "jasmine_eth", "contracts", `${contractName}.abi.json`),
+            JSON.stringify(contractBuild['abi'], null, 2),
+        );
+        fs.writeFileSync(
+            path.join(__dirname, "..", "packages", "jasmine-eth-python", "jasmine_eth", "contracts", `${contractName}.bin`),
+            contractBuild['bytecode'],
+        );
+    }
 };
 
 actionForEachContract("TFCToken");

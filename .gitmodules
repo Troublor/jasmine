@@ -9,4 +9,4 @@
 	url = https://github.com/Troublor/jasmine-eth-dart.git
 [submodule "packages/jasmine-eth-python"]
 	path = packages/jasmine-eth-python
-	url = git@github.com:Troublor/jasmine-eth-python.git
+	url = https://github.com/Troublor/jasmine-eth-python.git

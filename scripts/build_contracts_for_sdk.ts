@@ -76,7 +76,7 @@ let actionForEachContract = (contractName: string) => {
         contractBuild['bytecode'],
     );
 
-    if (fs.existsSync(path.join(__dirname, "..", "packages", "jasmine-eth-python"))) {
+    if (fs.existsSync(path.join(__dirname, "..", "packages", "jasmine-eth-python", "package.json"))) {
         fs.writeFileSync(
             path.join(__dirname, "..", "packages", "jasmine-eth-python", "jasmine_eth", "contracts", `${contractName}.abi.json`),
             JSON.stringify(contractBuild['abi'], null, 2),

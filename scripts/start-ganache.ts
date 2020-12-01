@@ -86,6 +86,7 @@ import * as child_process from "child_process";
     }else {
         args.push("--deterministic");
     }
+    args.push("--gasPrice 0x0");
     child_process.spawnSync("ganache-cli", args, {
         stdio: "inherit"
     });

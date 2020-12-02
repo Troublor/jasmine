@@ -89,6 +89,7 @@ import * as child_process from "child_process";
     args.push("--gasPrice", "0x0");
     args.push("--chainId", "2020");
     args.push("--networkId", "2020");
+    args.push("--hostname", "0.0.0.0")
     child_process.spawnSync("ganache-cli", args, {
         stdio: "inherit"
     });

@@ -6,56 +6,110 @@ import prompts from "prompts";
 import Wallet from 'ethereumjs-wallet'
 import BN from "bn.js";
 import * as child_process from "child_process";
+import * as fs from "fs";
 
 (async () => {
-    let response0 = await prompts({
+    let response4 = await prompts({
         type: "confirm",
-        name: "generateAccount",
-        message: "Do you want to use automatically generated accounts?",
+        name: "newChain",
+        message: "Create a brand-new blockchain or use an existing one?",
         initial: true,
     });
-    let accounts: { secretKey: string, balance: string }[] | undefined;
-    if (response0.generateAccount === undefined) {
+    if (response4.newChain === undefined) {
         return;
-    } else if (!response0.generateAccount) {
-        let response1 = await prompts({
-            type: "text",
-            name: "alloc",
-            message: "What is your account ETH allocation config? format: JSON {[privateKey]: balance}",
-            validate: input => {
-                try {
-                    const alloc = JSON.parse(input);
-                    for (let privateKey of Object.keys(alloc)) {
-                        const balance = alloc[privateKey];
-                        try {
-                            if (privateKey.startsWith("0x")) {
-                                privateKey = privateKey.slice(2);
+    }
+    let accounts: { secretKey: string, balance: string }[] | undefined;
+    let dbPath: string | undefined;
+    if (response4.newChain) {
+        let response0 = await prompts({
+            type: "confirm",
+            name: "generateAccount",
+            message: "Do you want to use automatically generated accounts?",
+            initial: true,
+        });
+        if (response0.generateAccount === undefined) {
+            return;
+        } else if (!response0.generateAccount) {
+            let response1 = await prompts({
+                type: "text",
+                name: "alloc",
+                message: "What is your account ETH allocation config? format: JSON {[privateKey]: balance}",
+                validate: input => {
+                    try {
+                        const alloc = JSON.parse(input);
+                        for (let privateKey of Object.keys(alloc)) {
+                            const balance = alloc[privateKey];
+                            try {
+                                if (privateKey.startsWith("0x")) {
+                                    privateKey = privateKey.slice(2);
+                                }
+                                Wallet.fromPrivateKey(Buffer.from(privateKey, "hex"));
+                            } catch (e) {
+                                return `Invalid private key: ${e.toString()}`;
                             }
-                            Wallet.fromPrivateKey(Buffer.from(privateKey, "hex"));
-                        } catch (e) {
-                            return `Invalid private key: ${e.toString()}`;
                         }
+                    } catch (e) {
+                        return `Invalid format, example: {"0xeee892cf591ae7d941e5b38bc98c900e430e1821046384bc756a3fe9e7840204":"1000000000000000000"}`
                     }
-                }catch (e){
-                    return `Invalid format, example: {"0xeee892cf591ae7d941e5b38bc98c900e430e1821046384bc756a3fe9e7840204":"1000000000000000000"}`
+                    return true;
+                }
+            });
+            const alloc = JSON.parse(response1.alloc);
+            accounts = [];
+            for (let privateKey of Object.keys(alloc)) {
+                const b = alloc[privateKey];
+                if (!privateKey.startsWith("0x")) {
+                    privateKey = "0x" + privateKey;
+                }
+                accounts.push({
+                    secretKey: privateKey,
+                    balance: "0x" + new BN(b).toString("hex")
+                });
+            }
+        } else {
+            accounts = undefined;
+        }
+
+        const response6 = await prompts({
+            type: "confirm",
+            name: "saveChain",
+            message: "Do you want to save the chain?",
+            initial: false
+        });
+        if (response6.saveChain === undefined) {
+            return;
+        }
+
+        if (response6.saveChain) {
+            const response5 = await prompts({
+                type: "text",
+                name: "dbPath",
+                message: "What is the path to save chain database?",
+            });
+            if (response5.dbPath === undefined) {
+                return;
+            }
+            dbPath = response5.dbPath;
+        }
+    } else {
+        const response5 = await prompts({
+            type: "text",
+            name: "dbPath",
+            message: "What is the existing database path?",
+            validate: prev => {
+                if (!fs.existsSync(prev)) {
+                    return `path ${prev} does not exist`;
+                }
+                if (!fs.statSync(prev).isDirectory()) {
+                    return `path ${prev} is not a directory`;
                 }
                 return true;
             }
         });
-        const alloc = JSON.parse(response1.alloc);
-        accounts = [];
-        for (let privateKey of Object.keys(alloc)) {
-            const b = alloc[privateKey];
-            if (!privateKey.startsWith("0x")) {
-                privateKey = "0x" + privateKey;
-            }
-            accounts.push({
-                secretKey: privateKey,
-                balance: "0x" + new BN(b).toString("hex")
-            });
+        if (response5.dbPath === undefined) {
+            return;
         }
-    } else {
-        accounts = undefined;
+        dbPath = response5.dbPath;
     }
 
     let response3 = await prompts({
@@ -83,13 +137,16 @@ import * as child_process from "child_process";
         for (let alloc of accounts) {
             args.push("--account", `${alloc.secretKey},${alloc.balance}`);
         }
-    }else {
+    } else {
         args.push("--deterministic");
     }
     args.push("--gasPrice", "0x0");
     args.push("--chainId", "2020");
     args.push("--networkId", "2020");
-    args.push("--hostname", "0.0.0.0")
+
+    if (dbPath) {
+        args.push("--db", dbPath);
+    }
     child_process.spawnSync("ganache-cli", args, {
         stdio: "inherit"
     });

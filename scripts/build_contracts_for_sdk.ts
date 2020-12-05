@@ -75,6 +75,14 @@ let actionForEachContract = (contractName: string) => {
         path.join(__dirname, "..", "packages", "jasmine-eth-ts", "src", "contracts", `${contractName}.bin`),
         contractBuild['bytecode'],
     );
+    fs.writeFileSync(
+        path.join(__dirname, "..", "packages", "jasmine-eth-ts", "dist", "src", "contracts", `${contractName}.abi.json`),
+        JSON.stringify(contractBuild['abi'], null, 2),
+    );
+    fs.writeFileSync(
+        path.join(__dirname, "..", "packages", "jasmine-eth-ts", "dist", "src", "contracts", `${contractName}.bin`),
+        contractBuild['bytecode'],
+    );
 
     if (fs.existsSync(path.join(__dirname, "..", "packages", "jasmine-eth-python", "package.json"))) {
         fs.writeFileSync(

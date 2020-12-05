@@ -61,7 +61,7 @@ let recipient: Address;
     recipient = response3.recipient;
 
     let response4 = await prompts({
-        type: 'number',
+        type: 'text',
         name: 'amount',
         message: 'What is amount of TFC to claim?',
         min: 0

@@ -2,18 +2,18 @@
 
 pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts/presets/ERC20PresetMinterPauser.sol";
+import "./ERC20MinterPauserBurner.sol";
 
-contract TFCToken is ERC20PresetMinterPauser {
-    // initialHolders will get the corresponding initialSupply of tokens, the length of two arrays must be equal
-    constructor (address[] memory initialHolders, uint256[] memory initialSupplies) public ERC20PresetMinterPauser("TFCToken", "TFC"){
-        require(initialHolders.length == initialSupplies.length, "array length of initialHolders and initialSupplies must be equal");
-        // mint initial supplies
-        for (uint256 i = 0; i < initialHolders.length; i++) {
-            if (initialSupplies[i] > 0) {
-                _mint(initialHolders[i], initialSupplies[i]);
-            }
-        }
+contract TFCToken is ERC20MinterPauserBurner {
+    /**
+     * @param adminAddress: the default admin address of ERC20 contracts.
+     * @param managerAddress: the address of TFCManager address,
+     *                        which makes it possible for users of TFC to claim TFC tokens by themselves
+     *                        with the signature signed by the creator address of TFCManager contract.
+     */
+    constructor (address adminAddress, address managerAddress) public ERC20MinterPauserBurner("TFCToken", "TFC", adminAddress){
+        // grant managerAddress MINTER_ROLE
+        _setupRole(MINTER_ROLE, managerAddress);
     }
 
     // a wrapper of transfer() to handle one-to-many transfers

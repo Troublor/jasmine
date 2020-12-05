@@ -4,7 +4,8 @@ import {expect} from "chai";
 import BN from "bn.js";
 import {TfcManagerContract, TfcManagerInstance, TfcTokenContract, TfcTokenInstance} from '../contracts/types';
 
-describe('TFCManager', () => {
+describe('TFCManager', async function () {
+    this.timeout(5000);
     const [admin, user1, user2] = accounts;
     const managerContract: TfcManagerContract = contract.fromArtifact("TFCManager");
     const TFCContract: TfcTokenContract = contract.fromArtifact("TFCToken");
@@ -124,5 +125,9 @@ describe('TFCManager', () => {
 
         let balance = await TFC.balanceOf(user1);
         expect(balance.toNumber()).to.be.equal(amount);
+    });
+
+    it('should prevent other address to mint', async function () {
+        expectRevert(TFC.mint(user1, 1000), "must have minter role to mint");
     });
 });

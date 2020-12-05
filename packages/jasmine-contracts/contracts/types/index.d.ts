@@ -3,9 +3,8 @@
 
 import { AccessControlContract } from "./AccessControl";
 import { Erc20Contract } from "./Erc20";
-import { Erc20BurnableContract } from "./Erc20Burnable";
+import { Erc20MinterPauserBurnerContract } from "./Erc20MinterPauserBurner";
 import { Erc20PausableContract } from "./Erc20Pausable";
-import { Erc20PresetMinterPauserContract } from "./Erc20PresetMinterPauser";
 import { Ierc20Contract } from "./Ierc20";
 import { PausableContract } from "./Pausable";
 import { TfcManagerContract } from "./TfcManager";
@@ -16,9 +15,8 @@ declare global {
     interface Artifacts {
       require(name: "AccessControl"): AccessControlContract;
       require(name: "ERC20"): Erc20Contract;
-      require(name: "ERC20Burnable"): Erc20BurnableContract;
+      require(name: "ERC20MinterPauserBurner"): Erc20MinterPauserBurnerContract;
       require(name: "ERC20Pausable"): Erc20PausableContract;
-      require(name: "ERC20PresetMinterPauser"): Erc20PresetMinterPauserContract;
       require(name: "IERC20"): Ierc20Contract;
       require(name: "Pausable"): PausableContract;
       require(name: "TFCManager"): TfcManagerContract;
@@ -29,12 +27,11 @@ declare global {
 
 export { AccessControlContract, AccessControlInstance } from "./AccessControl";
 export { Erc20Contract, Erc20Instance } from "./Erc20";
-export { Erc20BurnableContract, Erc20BurnableInstance } from "./Erc20Burnable";
-export { Erc20PausableContract, Erc20PausableInstance } from "./Erc20Pausable";
 export {
-  Erc20PresetMinterPauserContract,
-  Erc20PresetMinterPauserInstance
-} from "./Erc20PresetMinterPauser";
+  Erc20MinterPauserBurnerContract,
+  Erc20MinterPauserBurnerInstance
+} from "./Erc20MinterPauserBurner";
+export { Erc20PausableContract, Erc20PausableInstance } from "./Erc20Pausable";
 export { Ierc20Contract, Ierc20Instance } from "./Ierc20";
 export { PausableContract, PausableInstance } from "./Pausable";
 export { TfcManagerContract, TfcManagerInstance } from "./TfcManager";

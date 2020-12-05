@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "contracts/types/*",
   "scripts": {
-    "test": "yarn build && mocha --require ts-node/register --exit --recursive tests/**/*.test.ts",
+    "test": "mocha --require ts-node/register --exit --recursive tests/**/*.test.ts",
     "build:contracts": "oz compile --no-interactive",
     "build:types": "typechain --target truffle-v5 --outDir contracts/types 'build/contracts/*.json'",
     "build": "yarn build:contracts && yarn build:types"

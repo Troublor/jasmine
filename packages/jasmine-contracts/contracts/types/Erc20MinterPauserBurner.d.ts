@@ -4,12 +4,14 @@
 import BN from "bn.js";
 import { EventData, PastEventOptions } from "web3-eth-contract";
 
-export interface TfcTokenContract extends Truffle.Contract<TfcTokenInstance> {
+export interface Erc20MinterPauserBurnerContract
+  extends Truffle.Contract<Erc20MinterPauserBurnerInstance> {
   "new"(
-    adminAddress: string,
-    managerAddress: string,
+    name: string,
+    symbol: string,
+    defaultAdmin: string,
     meta?: Truffle.TransactionDetails
-  ): Promise<TfcTokenInstance>;
+  ): Promise<Erc20MinterPauserBurnerInstance>;
 }
 
 export interface Approval {
@@ -97,7 +99,8 @@ type AllEvents =
   | Transfer
   | Unpaused;
 
-export interface TfcTokenInstance extends Truffle.ContractInstance {
+export interface Erc20MinterPauserBurnerInstance
+  extends Truffle.ContractInstance {
   BURNER_ROLE(txDetails?: Truffle.TransactionDetails): Promise<string>;
 
   DEFAULT_ADMIN_ROLE(txDetails?: Truffle.TransactionDetails): Promise<string>;
@@ -299,29 +302,6 @@ export interface TfcTokenInstance extends Truffle.ContractInstance {
   };
 
   name(txDetails?: Truffle.TransactionDetails): Promise<string>;
-
-  one2manyTransfer: {
-    (
-      tos: string[],
-      amounts: (number | BN | string)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      tos: string[],
-      amounts: (number | BN | string)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<boolean>;
-    sendTransaction(
-      tos: string[],
-      amounts: (number | BN | string)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      tos: string[],
-      amounts: (number | BN | string)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
 
   pause: {
     (txDetails?: Truffle.TransactionDetails): Promise<
@@ -645,29 +625,6 @@ export interface TfcTokenInstance extends Truffle.ContractInstance {
     };
 
     name(txDetails?: Truffle.TransactionDetails): Promise<string>;
-
-    one2manyTransfer: {
-      (
-        tos: string[],
-        amounts: (number | BN | string)[],
-        txDetails?: Truffle.TransactionDetails
-      ): Promise<Truffle.TransactionResponse<AllEvents>>;
-      call(
-        tos: string[],
-        amounts: (number | BN | string)[],
-        txDetails?: Truffle.TransactionDetails
-      ): Promise<boolean>;
-      sendTransaction(
-        tos: string[],
-        amounts: (number | BN | string)[],
-        txDetails?: Truffle.TransactionDetails
-      ): Promise<string>;
-      estimateGas(
-        tos: string[],
-        amounts: (number | BN | string)[],
-        txDetails?: Truffle.TransactionDetails
-      ): Promise<number>;
-    };
 
     pause: {
       (txDetails?: Truffle.TransactionDetails): Promise<

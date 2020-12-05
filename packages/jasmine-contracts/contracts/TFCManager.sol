@@ -19,7 +19,7 @@ contract TFCManager {
 
     constructor() public {
         signer = msg.sender;
-        tfcToken = new TFCToken(new address[](0), new uint256[](0));
+        tfcToken = new TFCToken(msg.sender, address(this));
     }
 
     // claim TFC token using the signature signed by authorizer.

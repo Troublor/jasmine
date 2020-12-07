@@ -9,7 +9,21 @@ export interface TfcManagerContract
   "new"(meta?: Truffle.TransactionDetails): Promise<TfcManagerInstance>;
 }
 
-type AllEvents = never;
+export interface ClaimTFC {
+  name: "ClaimTFC";
+  args: {
+    recipient: string;
+    amount: BN;
+    nonce: BN;
+    sig: string;
+    0: string;
+    1: BN;
+    2: BN;
+    3: string;
+  };
+}
+
+type AllEvents = ClaimTFC;
 
 export interface TfcManagerInstance extends Truffle.ContractInstance {
   claimTFC: {

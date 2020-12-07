@@ -14,6 +14,8 @@ contract TFCManager {
     // the address who has the privilege to sign message of claiming TFC token
     address public signer;
 
+    event ClaimTFC(address indexed recipient, uint256 indexed amount, uint256 indexed nonce, bytes sig);
+
     // the address of TFC ERC20 smart contract
     TFCToken public tfcToken;
 
@@ -37,6 +39,8 @@ contract TFCManager {
 
         // mint TFC tokens for the msg.sender
         tfcToken.mint(msg.sender, amount);
+
+        emit ClaimTFC(msg.sender, amount, nonce, sig);
     }
 
     function splitSignature(bytes memory sig)

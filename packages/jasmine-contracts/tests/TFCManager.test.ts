@@ -71,6 +71,15 @@ describe('TFCManager', async function () {
 
         balance = await TFC.balanceOf(user1);
         expect(balance.toNumber()).to.be.equal(amount);
+
+        const events = await manager.getPastEvents("ClaimTFC", {
+            filter: {
+                recipient: user1,
+                amount: amount,
+                nonce: nonce,
+            }
+        });
+        expect(events.length).to.be.equal(1);
     });
 
     it('should not claimTFC if not authorized', async function () {

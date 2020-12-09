@@ -6,8 +6,8 @@ import { EventData, PastEventOptions } from "web3-eth-contract";
 
 export interface Erc20Contract extends Truffle.Contract<Erc20Instance> {
   "new"(
-    name: string,
-    symbol: string,
+    name_: string,
+    symbol_: string,
     meta?: Truffle.TransactionDetails
   ): Promise<Erc20Instance>;
 }

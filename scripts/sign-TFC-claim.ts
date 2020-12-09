@@ -6,7 +6,7 @@ import prompts from "prompts";
 import SDK, {Account, Address, Manager} from "jasmine-eth-ts";
 import BN from "bn.js";
 
-let sdk: SDK;
+let sdk: SDK | undefined;
 let manager: Manager;
 let admin: Account;
 let recipient: Address;
@@ -31,7 +31,7 @@ let recipient: Address;
         type: 'text',
         name: 'managerAddress',
         message: 'What is the address of Manager contract?',
-        validate: input => sdk.web3.utils.isAddress(input),
+        validate: input => (sdk as SDK).web3.utils.isAddress(input),
     });
     try {
         manager = sdk.getManager(response1.managerAddress);
@@ -56,7 +56,7 @@ let recipient: Address;
         type: 'text',
         name: 'recipient',
         message: 'What is the address of recipient?',
-        validate: input => sdk.web3.utils.isAddress(input),
+        validate: input => (sdk as SDK).web3.utils.isAddress(input),
     });
     recipient = response3.recipient;
 

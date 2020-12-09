@@ -6,7 +6,7 @@ import prompts from "prompts";
 import SDK, {Account, Address} from "jasmine-eth-ts";
 import BN from "bn.js";
 
-let sdk: SDK;
+let sdk: SDK | undefined;
 
 (async () => {
     while (!sdk) {
@@ -35,7 +35,7 @@ let sdk: SDK;
         initial: 0,
     });
 
-    let deployer: Account;
+    let deployer: Account | undefined;
     if (response1.accountType === 'new') {
         console.log("Here is the new account:");
         deployer = sdk.createAccount();
@@ -56,7 +56,7 @@ let sdk: SDK;
                 console.error(`Something wrong with your private key: ${e.toString()}`);
             }
             try {
-                const balance = await sdk.balanceOf(deployer.address);
+                const balance = await sdk.balanceOf((deployer as Account).address);
                 if (balance.eq(new BN(0))) {
                     console.error(`Your account has no ETH balance. Cannot deploy contract with this account.`);
                 }

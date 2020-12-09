@@ -10,7 +10,7 @@ let result = child_process.spawnSync("yarn", ["workspace", "jasmine-contracts", 
 console.log(result.stdout.toString())
 if (result.status !== 0) {
     console.error(result.stderr.toString());
-    process.exit(result.status);
+    process.exit(result.status as number);
 }
 
 console.log("Building typescript contract dependency for TFCToken");
@@ -28,7 +28,7 @@ result = child_process.spawnSync(
 console.log(result.stdout.toString())
 if (result.status !== 0) {
     console.error(result.stderr.toString());
-    process.exit(result.status);
+    process.exit(result.status as number);
 }
 
 let actionForEachContract = (contractName: string) => {
@@ -61,7 +61,7 @@ let actionForEachContract = (contractName: string) => {
         console.log(result.stdout.toString());
         if (result.status !== 0) {
             console.error(result.stderr.toString());
-            process.exit(result.status);
+            process.exit(result.status as number);
         }
     }
 

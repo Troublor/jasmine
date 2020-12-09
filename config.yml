@@ -1,9 +1,12 @@
 services:
   ethereum:
-    endpoint: http://103.253.11.146:8552
-    contracts:
-      tfc-erc20: "0xE48d3271a3DE7E51eaA2f70Dd50B2Aa20D4C638E"
-      tfc-manager: "0x07a457d878BF363E0Bb5aa0B096092f941e19962"
+    existing: false
+#    endpoint: http://103.253.11.146:8552
+    host: 0.0.0.0
+    port: 8545
+#    contracts:
+#      tfc-erc20: "0xE48d3271a3DE7E51eaA2f70Dd50B2Aa20D4C638E"
+#      tfc-manager: "0x07a457d878BF363E0Bb5aa0B096092f941e19962"
 
   restful:
     filter:

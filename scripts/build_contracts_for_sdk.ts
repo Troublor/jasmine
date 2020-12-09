@@ -19,7 +19,7 @@ console.log("Building typescript contract dependency for TFCToken");
 let outputDir = path.join(__dirname, "..", "packages", "jasmine-eth-ts", "src", "contracts")
 let abis = path.join(__dirname, "..", "packages", "jasmine-contracts", "build", "contracts", "*.json");
 result = child_process.spawnSync(
-    "typechain",
+    path.join(__dirname, "..", "node_modules", ".bin", "typechain"),
     ["--target", "web3-v1", "--outDir", outputDir, abis],
     {
         cwd: __dirname,

@@ -12,10 +12,10 @@ describe("TFC", () => {
     let accounts: Account[];
 
     beforeEach(async () => {
-        let mockEth = new MockEthereum();
-        let sdk = new SDK(mockEth.endpoint);
+        const mockEth = new MockEthereum();
+        const sdk = new SDK(mockEth.endpoint);
         accounts = mockEth.predefinedPrivateKeys.map(key => sdk.retrieveAccount(key));
-        let tfcAddress = await sdk.deployTFC(
+        const tfcAddress = await sdk.deployTFC(
             accounts[0],
         );
         const configuration = () => ({
@@ -39,13 +39,13 @@ describe("TFC", () => {
     describe("Service", () => {
         it('should get balance correctly', async function () {
             for (let i = 0; i < 20; i++) {
-                let balance = await tfcService.balanceOf(accounts[i].address);
+                const balance = await tfcService.balanceOf(accounts[i].address);
                 expect(balance.toString()).toEqual(new BN("100000000").mul(new BN("1000000000000000000")).toString());
             }
         });
 
         it('should get total supply correctly', async function () {
-            let supply = await tfcService.totalSupply();
+            const supply = await tfcService.totalSupply();
             expect(supply.toString()).toEqual(new BN("2000000000").mul(new BN("1000000000000000000")).toString());
         });
 
@@ -64,13 +64,13 @@ describe("TFC", () => {
 
     describe("Controller", () => {
         it('should serve balance query', async function () {
-            let result = await tfcController.getAccountInfo(accounts[0].address);
+            const result = await tfcController.getAccountInfo(accounts[0].address);
             expect(result.balance).toEqual(new BN("100000000").mul(new BN("1000000000000000000")).toString('hex'));
             expect(result.address).toEqual(accounts[0].address);
         });
 
         it('should serve get name query', async function () {
-            let result = await tfcController.getTokenInfo();
+            const result = await tfcController.getTokenInfo();
             expect(result.name).toEqual("TFCToken");
             expect(result.symbol).toEqual("TFC");
             expect(result.totalSupply).toEqual(new BN("2000000000").mul(new BN("1000000000000000000")).toString('hex'));

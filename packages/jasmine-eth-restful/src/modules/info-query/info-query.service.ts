@@ -213,7 +213,7 @@ export default class InfoQueryservices {
     }
 
     public async getTransactions(): Promise<TransactionBasicInfo[]> {
-        let events = await this.tfc.contract.getPastEvents("allEvents", {
+        const events = await this.tfc.contract.getPastEvents("allEvents", {
             fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
         });
         const txs = events
@@ -267,7 +267,7 @@ export default class InfoQueryservices {
     }
 
     public async getBlocks(sortOrder: SortOrder, page: number, count: number): Promise<[BlockBasicInfo[], number]> {
-        let events = await this.tfc.contract.getPastEvents("allEvents", {
+        const events = await this.tfc.contract.getPastEvents("allEvents", {
             fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
         });
         const txs = events

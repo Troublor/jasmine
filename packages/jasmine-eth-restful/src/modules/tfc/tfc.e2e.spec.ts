@@ -11,10 +11,10 @@ describe("TFC", () => {
     let accounts: Account[];
 
     beforeAll(async () => {
-        let mockEth = new MockEthereum();
-        let sdk = new SDK(mockEth.endpoint);
+        const mockEth = new MockEthereum();
+        const sdk = new SDK(mockEth.endpoint);
         accounts = mockEth.predefinedPrivateKeys.map(key => sdk.retrieveAccount(key));
-        let tfcAddress = await sdk.deployTFC(
+        const tfcAddress = await sdk.deployTFC(
             accounts[0],
         );
         const configuration = () => ({
@@ -50,7 +50,7 @@ describe("TFC", () => {
     });
 
     it('GET /tfc-erc20/accounts/{address} 200', function () {
-        let testCases = [
+        const testCases = [
             {
                 address: accounts[0].address,
                 balance: new BN("100000000").mul(new BN("1000000000000000000")).toString('hex'),
@@ -60,7 +60,7 @@ describe("TFC", () => {
                 balance: new BN(0).toString('hex'),
             },
         ];
-        for (let testCase of testCases) {
+        for (const testCase of testCases) {
             request(app.getHttpServer())
                 .get(`/tfc-erc20/${testCase.address}/balance`)
                 .expect(200)
@@ -72,14 +72,14 @@ describe("TFC", () => {
     });
 
     it('GET /tfc-erc20/accounts/{address} 400', function () {
-        let invalidAddresses = [
+        const invalidAddresses = [
             "0x111111111111111111111111111111111111111",
             "0xdfkajfdsalkfjsdlf",
             "dfakldjfaslkfjsadlkfjs",
             "0x#*$(&#(*QJKFHDKJFLSJFSDKLJFLKSDJFEIU$DFF",
             "0xDFKLDJSKTEUNCHEE111111111111111111111113"
         ]
-        for (let addr of invalidAddresses) {
+        for (const addr of invalidAddresses) {
             request(app.getHttpServer())
                 .get(`/tfc-erc20/${addr}/balance`)
                 .expect(400);

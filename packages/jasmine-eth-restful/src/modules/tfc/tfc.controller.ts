@@ -19,7 +19,7 @@ export default class TfcController {
     @ApiBadRequestResponse({description: "Invalid Ethereum Address"})
     @ApiOkResponse({type: AccountInfo})
     async getAccountInfo(@Param('address', AddressPipe) address: Address): Promise<AccountInfo> {
-        let balance = await this.tfcService.balanceOf(address);
+        const balance = await this.tfcService.balanceOf(address);
         return {
             address: address,
             balance: balance.toString('hex'),

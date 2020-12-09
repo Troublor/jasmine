@@ -60,7 +60,7 @@ export default class InfoQueryController {
         }
 
         try {
-            let result = await this.infoQueryService.getBlocks(sortOrder, page, count);
+            const result = await this.infoQueryService.getBlocks(sortOrder, page, count);
             return {
                 code: 200,
                 msg: "OK",

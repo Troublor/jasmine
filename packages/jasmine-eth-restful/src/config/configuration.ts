@@ -6,13 +6,12 @@ let accounts = mockEth.predefinedPrivateKeys.map(key => sdk.retrieveAccount(key)
 let tfcAddress;
 
 export default async () => {
-    tfcAddress = tfcAddress ? tfcAddress : await sdk.deployTFC(accounts.slice(0, 20), accounts[0]);
     return {
         port: 8989,
         ethereum: {
-            endpoint: "wss://rinkeby.infura.io/ws/v3/e8e5b9ad18ad4daeb0e01a522a989d66",
-            tfcAddress: "0x44e3BAF945f70fA8a926A84563492662BC9a5c11",
-            managerAddress: "0xb402822CC243E8f86E28c2F79c67DAcD14A9cc01",
+            endpoint: "ws://103.253.11.146:8552/",
+            tfcAddress: "0xE48d3271a3DE7E51eaA2f70Dd50B2Aa20D4C638E",
+            managerAddress: "0x07a457d878BF363E0Bb5aa0B096092f941e19962",
         },
     }
 }

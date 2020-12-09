@@ -13,7 +13,10 @@ async function bootstrap() {
         .build();
     const document = SwaggerModule.createDocument(app, options);
     SwaggerModule.setup('api', app, document);
-    await app.listen(config.get<string>('port'));
+    const port = config.get<string>("restful.port", "8989");
+    await app.listen(port);
 }
 
-bootstrap();
+(async () => {
+    await bootstrap();
+})()

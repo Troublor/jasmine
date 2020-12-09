@@ -5,13 +5,13 @@ export default abstract class ResponseModel {
         type: Number,
         description: "response status code",
     })
-    code: number;
+    code!: number;
 
     @ApiProperty({
         type: String,
         description: "description of response status",
     })
-    msg: string;
+    msg!: string;
 
     @ApiProperty({
         description: "response data"

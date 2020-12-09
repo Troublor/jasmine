@@ -16,7 +16,6 @@ describe("TFC", () => {
         let sdk = new SDK(mockEth.endpoint);
         accounts = mockEth.predefinedPrivateKeys.map(key => sdk.retrieveAccount(key));
         let tfcAddress = await sdk.deployTFC(
-            accounts.slice(0, 20),
             accounts[0],
         );
         const configuration = () => ({
@@ -65,7 +64,7 @@ describe("TFC", () => {
 
     describe("Controller", () => {
         it('should serve balance query', async function () {
-            let result = await tfcController.getBalance(accounts[0].address);
+            let result = await tfcController.getAccountInfo(accounts[0].address);
             expect(result.balance).toEqual(new BN("100000000").mul(new BN("1000000000000000000")).toString('hex'));
             expect(result.address).toEqual(accounts[0].address);
         });

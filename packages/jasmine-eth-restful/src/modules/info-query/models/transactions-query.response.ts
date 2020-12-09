@@ -7,29 +7,29 @@ export class TransactionBasicInfo {
         type: String,
         description: "transaction hash",
     })
-    hash: string;
+    hash!: string;
 
     @ApiProperty({
         type: String,
         description: "hash of the block containing the transaction",
     })
-    blockHash: string;
+    blockHash!: string;
 
     @ApiProperty({
         type: Number,
         description: "height of the block containing the transaction",
     })
-    blockHeight: number;
+    blockHeight!: number;
 }
 
 export class TransactionsQueryData {
     @ApiProperty()
-    metadata: MetadataModel;
+    metadata!: MetadataModel;
 
     @ApiProperty({
         type: [TransactionBasicInfo]
     })
-    txs: TransactionBasicInfo[]
+    txs!: TransactionBasicInfo[]
 }
 
 export default class TransactionsQueryResponse extends ResponseModel {
@@ -37,5 +37,5 @@ export default class TransactionsQueryResponse extends ResponseModel {
         type: TransactionsQueryData,
         description: "list of basic information of transactions"
     })
-    data: TransactionsQueryData;
+    data!: TransactionsQueryData | null;
 };

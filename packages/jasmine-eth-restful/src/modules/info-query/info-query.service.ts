@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {ContractStatus, MintEvent, MintEventParams} from "./models/contract-status.response";
 import SDK, {Address, TFC} from "jasmine-eth-ts";
 import {ConfigService} from "@nestjs/config";
-import * as _ from "lodash";
+import _ from "lodash";
 import {
     ApprovalEvent, ApprovalEventParams,
     ContractEvent,
@@ -15,17 +15,18 @@ import {TransactionBasicInfo} from "./models/transactions-query.response";
 import {BlockInfo} from "./models/block-info.response";
 import {BlockBasicInfo} from "./models/blocks-query.response";
 import {SortOrder} from "./models/sort-order";
+import Web3Utils from "web3-utils";
 
 @Injectable()
-export default class InfoQueryService {
+export default class InfoQueryservices {
 
     private readonly sdk: SDK;
 
     private readonly tfc: TFC;
 
     constructor(private readonly configService: ConfigService) {
-        this.sdk = new SDK(configService.get<string>('ethereum.endpoint'));
-        this.tfc = this.sdk.getTFC(configService.get<string>('ethereum.tfcAddress'));
+        this.sdk = new SDK(configService.get<string>('services.ethereum.endpoint', "ethereum endpoint unprovided"));
+        this.tfc = this.sdk.getTFC(configService.get<string>('services.ethereum.contracts.tfc-erc20', "tfc-erc20 address unprovided"));
     }
 
     public async getContractStatus(): Promise<ContractStatus> {
@@ -33,7 +34,7 @@ export default class InfoQueryService {
             filter: {
                 from: "0x0000000000000000000000000000000000000000",
             },
-            fromBlock: "earliest"
+            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
         });
         const mintEvents = events.map(event => <MintEvent>{
             params: {
@@ -50,7 +51,7 @@ export default class InfoQueryService {
             name: await this.tfc.name(),
             symbol: await this.tfc.symbol(),
             decimals: await this.tfc.decimals(),
-            address: this.configService.get<string>('ethereum.tfcAddress'),
+            address: this.configService.get<string>('services.ethereum.contracts.tfc-erc20', "tfc-erc20 address unprovided"),
             totalSupply: "0x" + (await this.tfc.totalSupply()).toString("hex"),
             mintEvents: mintEvents,
         }
@@ -65,39 +66,39 @@ export default class InfoQueryService {
             filter: {
                 from: address,
             },
-            fromBlock: "earliest",
+            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
         });
 
         const toTransferEvents = await this.tfc.contract.getPastEvents("Transfer", {
             filter: {
                 to: address,
             },
-            fromBlock: "earliest",
+            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
         });
 
         const ownerApprovalEvents = await this.tfc.contract.getPastEvents("Approval", {
             filter: {
                 owner: address,
             },
-            fromBlock: "earliest",
+            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
         });
 
         const spenderApprovalEvents = await this.tfc.contract.getPastEvents("Approval", {
             filter: {
                 spender: address,
             },
-            fromBlock: "earliest",
+            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
         });
 
         let transferEvents = [...fromTransferEvents, ...toTransferEvents];
         // remove duplicate events
-        transferEvents = _.uniq(transferEvents, event => JSON.stringify([event.transactionHash, event.logIndex]));
+        transferEvents = _.uniqBy(transferEvents, event => JSON.stringify([event.transactionHash, event.logIndex]));
 
         let approvalEvents = [...ownerApprovalEvents, ...spenderApprovalEvents];
         // remove duplicate events
-        approvalEvents = _.uniq(approvalEvents, event => JSON.stringify([event.transactionHash, event.logIndex]));
+        approvalEvents = _.uniqBy(approvalEvents, event => JSON.stringify([event.transactionHash, event.logIndex]));
 
-        const transactions = {};
+        const transactions: { [hash: string]: any } = {};
         for (const event of [...transferEvents, ...approvalEvents]) {
             if (event.transactionHash in transactions) {
                 continue;
@@ -114,7 +115,7 @@ export default class InfoQueryService {
         return await this.sdk.web3.eth.getBlockNumber();
     }
 
-    public async getTransaction(txHash: string): Promise<TransactionInfo> {
+    public async getTransaction(txHash: string): Promise<TransactionInfo | null> {
         const tx = await this.sdk.web3.eth.getTransaction(txHash);
         if (!tx) {
             // transaction does not exist
@@ -127,10 +128,10 @@ export default class InfoQueryService {
 
         if (receipt) {
             for (const log of receipt.logs) {
-                const transferEventAbi = this.tfc.abi.find(item => item.name === "Transfer");
+                const transferEventAbi = this.tfc.abi.find(item => item.name === "Transfer") as Web3Utils.AbiItem;
                 try {
                     const params = this.sdk.web3.eth.abi.decodeLog(
-                        transferEventAbi.inputs,
+                        transferEventAbi.inputs as Web3Utils.AbiInput[],
                         log.data,
                         transferEventAbi.anonymous ? log.topics : log.topics.slice(1),
                     );
@@ -167,10 +168,10 @@ export default class InfoQueryService {
                         });
                     }
                 } catch (e) {
-                    const approvalEventAbi = this.tfc.abi.find(item => item.name === "Approval");
+                    const approvalEventAbi = this.tfc.abi.find(item => item.name === "Approval") as Web3Utils.AbiItem;
                     try {
                         const params = this.sdk.web3.eth.abi.decodeLog(
-                            approvalEventAbi.inputs,
+                            approvalEventAbi.inputs as Web3Utils.AbiInput[],
                             log.data,
                             approvalEventAbi.anonymous ? log.topics : log.topics.slice(1),
                         );
@@ -213,7 +214,7 @@ export default class InfoQueryService {
 
     public async getTransactions(): Promise<TransactionBasicInfo[]> {
         let events = await this.tfc.contract.getPastEvents("allEvents", {
-            fromBlock: "earliest",
+            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
         });
         const txs = events
             .filter(event => ["Transfer", "Approval"].includes(event.event))
@@ -235,10 +236,10 @@ export default class InfoQueryService {
                 blockHash: event.blockHash,
                 blockHeight: event.blockNumber,
             });
-        return _.uniq(txs, "hash");
+        return _.uniqBy(txs, value => value["hash"]);
     }
 
-    public async getBlockInfo(height: number): Promise<BlockInfo> {
+    public async getBlockInfo(height: number): Promise<BlockInfo | null> {
         const block = await this.sdk.web3.eth.getBlock(height);
         if (!block) {
             return null;
@@ -267,7 +268,7 @@ export default class InfoQueryService {
 
     public async getBlocks(sortOrder: SortOrder, page: number, count: number): Promise<[BlockBasicInfo[], number]> {
         let events = await this.tfc.contract.getPastEvents("allEvents", {
-            fromBlock: "earliest",
+            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
         });
         const txs = events
             .filter(event => ["Transfer", "Approval"].includes(event.event))

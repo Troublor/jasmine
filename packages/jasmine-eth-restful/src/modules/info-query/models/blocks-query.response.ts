@@ -7,41 +7,41 @@ export class BlockBasicInfo {
         type: String,
         description: "block hash",
     })
-    hash: string;
+    hash!: string;
 
     @ApiProperty({
         type: Number,
         description: "block height",
     })
-    height: number;
+    height!: number;
 
     @ApiProperty({
         type: String,
         description: "parent block hash",
     })
-    parentHash: string;
+    parentHash!: string;
 
     @ApiProperty({
         type: Number,
         description: "block time stamp"
     })
-    timestamp: number;
+    timestamp!: number;
 
     @ApiProperty({
         type: [String],
         description: "list of transaction hashes in the block"
     })
-    transactions: string[];
+    transactions!: string[];
 }
 
 export class BlocksQueryData {
     @ApiProperty()
-    metadata: MetadataModel;
+    metadata!: MetadataModel;
 
     @ApiProperty({
         type: [BlockBasicInfo]
     })
-    blocks: BlockBasicInfo[];
+    blocks!: BlockBasicInfo[];
 }
 
 export default class BlocksQueryResponse extends ResponseModel {
@@ -49,5 +49,5 @@ export default class BlocksQueryResponse extends ResponseModel {
         type: BlocksQueryData,
         description: "blocks basic information"
     })
-    data: BlocksQueryData;
+    data!: BlocksQueryData | null;
 }

@@ -7,89 +7,89 @@ export class BlockInfo extends BlockBasicInfo {
         type: String,
         description: "block nonce",
     })
-    nonce: string;
+    nonce!: string;
 
     @ApiProperty({
         type: String,
         description: "sha3 of uncles",
     })
-    sha3Uncles: string;
+    sha3Uncles!: string;
 
     @ApiProperty({
         type: String,
         description: "logs bloom",
     })
-    logsBloom: string;
+    logsBloom!: string;
 
     @ApiProperty({
         type: String,
         description: "transactions root",
     })
-    transactionsRoot: string;
+    transactionsRoot!: string;
 
     @ApiProperty({
         type: String,
         description: "state root",
     })
-    stateRoot: string;
+    stateRoot!: string;
 
     @ApiProperty({
         type: String,
         description: "miner address",
     })
-    miner: string;
+    miner!: string;
 
     @ApiProperty({
         type: String,
         description: "difficulty of the block",
     })
-    difficulty: number;
+    difficulty!: number;
 
     @ApiProperty({
         type: String,
         description: "total difficulty of current blockchain",
     })
-    totalDifficulty: number;
+    totalDifficulty!: number;
 
     @ApiProperty({
         type: Number,
         description: "the size of this block in bytes"
     })
-    size: number;
+    size!: number;
 
     @ApiProperty({
         type: String,
         description: "extra data of the block",
     })
-    extraData: string;
+    extraData!: string;
 
     @ApiProperty({
         type: Number,
         description: "gas limit of this block",
     })
-    gasLimit: number;
+    gasLimit!: number;
 
     @ApiProperty({
         type: Number,
         description: "total gas used by transactions in this block"
     })
-    gasUsed: number;
+    gasUsed!: number;
 
     @ApiProperty({
         type: [String],
         description: "a list of hash of uncles"
     })
-    uncles: string[];
+    uncles!: string[];
 }
 
 export class BlockInfoData {
     @ApiProperty()
-    block: BlockInfo;
+    block!: BlockInfo;
 }
 
 export default class BlockInfoResponse extends ResponseModel {
     @ApiProperty({
         type: BlockInfoData
     })
-    data: BlockInfoData;
+    data!: BlockInfoData | null;
 };

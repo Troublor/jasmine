@@ -6,11 +6,11 @@ export default class AccountInfo {
         type: String,
         description: "Ethereum address"
     })
-    address: Address;
+    address!: Address;
 
     @ApiProperty({
         type: String,
         description: "balance of the account, a hex number"
     })
-    balance: string
+    balance!: string
 };

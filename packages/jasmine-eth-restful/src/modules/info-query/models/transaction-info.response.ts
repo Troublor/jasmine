@@ -4,12 +4,12 @@ import {ApiProperty} from "@nestjs/swagger";
 
 export class ContractEventRaw {
     @ApiProperty()
-    data: string;
+    data!: string;
 
     @ApiProperty({
         type: [String],
     })
-    topics: string[];
+    topics!: string[];
 }
 
 export abstract class ContractEvent {
@@ -22,36 +22,36 @@ export abstract class ContractEvent {
         type: ContractEventRaw,
         description: "raw data of the event",
     })
-    raw: ContractEventRaw;
+    raw!: ContractEventRaw;
 
     @ApiProperty({
         type: String,
         description: "event name",
     })
-    name: string;
+    name!: string;
 
     @ApiProperty({
         type: String,
         description: "signature of the event"
     })
-    signature: string;
+    signature!: string;
 
     @ApiProperty({
         type: String,
         description: "the address the event originated from",
     })
-    address: string;
+    address!: string;
 }
 
 export class TransferEventParams {
     @ApiProperty()
-    from: string;
+    from!: string;
 
     @ApiProperty()
-    to: string;
+    to!: string;
 
     @ApiProperty()
-    value: string;
+    value!: string;
 }
 
 export class TransferEvent extends ContractEvent {
@@ -59,21 +59,21 @@ export class TransferEvent extends ContractEvent {
         type: TransferEventParams,
         description: "ERC20 Transfer event"
     })
-    params: TransferEventParams;
+    params!: TransferEventParams;
 
     @ApiProperty()
-    name: "Transfer";
+    name!: "Transfer";
 }
 
 export class ApprovalEventParams {
     @ApiProperty()
-    owner: string;
+    owner!: string;
 
     @ApiProperty()
-    spender: string;
+    spender!: string;
 
     @ApiProperty()
-    value: string;
+    value!: string;
 }
 
 export class ApprovalEvent extends ContractEvent {
@@ -81,10 +81,10 @@ export class ApprovalEvent extends ContractEvent {
         type: ApprovalEventParams,
         description: "ERC20 Approval event"
     })
-    params: ApprovalEventParams;
+    params!: ApprovalEventParams;
 
     @ApiProperty()
-    name: "Approval";
+    name!: "Approval";
 }
 
 export class TransactionInfo extends TransactionBasicInfo {
@@ -92,66 +92,66 @@ export class TransactionInfo extends TransactionBasicInfo {
         type: Number,
         description: "nonce of the transaction",
     })
-    nonce: number;
+    nonce!: number;
 
     @ApiProperty({
         type: Number,
         description: "index of this transaction in the block",
     })
-    transactionIndex: number;
+    transactionIndex!: number;
 
     @ApiProperty({
         type: String,
         description: "sender address",
     })
-    from: string;
+    from!: string;
 
     @ApiProperty({
         type: String,
         description: "destination address",
     })
-    to: string;
+    to!: string;
 
     @ApiProperty({
         type: String,
         description: "value of the transaction",
     })
-    value: string;
+    value!: string;
 
     @ApiProperty({
         type: Number,
         description: "gas used in this transaction"
     })
-    gasUsed: number;
+    gasUsed!: number;
 
     @ApiProperty({
         type: String,
         description: "gas price"
     })
-    gasPrice: string;
+    gasPrice!: string;
 
     @ApiProperty({
         type: String,
         description: "input of the transaction"
     })
-    input: string;
+    input!: string;
 
     @ApiProperty({
         type: Boolean,
         description: "execution status of the transaction, true means the transaction is successful",
     })
-    status: boolean;
+    status!: boolean;
 
     @ApiProperty({
         type: [ContractEvent],
         description: "a list of events emitted in this transaction",
     })
-    events: ContractEvent[];
+    events!: ContractEvent[];
 }
 
 export class TransactionInfoData {
     @ApiProperty()
-    tx: TransactionInfo;
+    tx!: TransactionInfo;
 }
 
 export default class TransactionInfoResponse extends ResponseModel {
@@ -159,5 +159,5 @@ export default class TransactionInfoResponse extends ResponseModel {
         type: TransactionInfoData,
         description: "transaction information"
     })
-    data: TransactionInfoData;
+    data!: TransactionInfoData | null;
 };

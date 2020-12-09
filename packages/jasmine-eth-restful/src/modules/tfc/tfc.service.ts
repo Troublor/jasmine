@@ -12,8 +12,8 @@ export default class TfcService {
     constructor(
         private readonly config: ConfigService
     ) {
-        this.sdk = new SDK(config.get<string>("ethereum.endpoint"));
-        this.tfcAddress = config.get<string>("ethereum.tfcAddress");
+        this.sdk = new SDK(config.get<string>("services.ethereum.endpoint", "ethereum endpoint unprovided"));
+        this.tfcAddress = config.get<string>("services.ethereum.contract.tfc-erc20", "tfc contract unprovided");
         this.tfc = this.sdk.getTFC(this.tfcAddress);
     }
 

@@ -18,7 +18,7 @@ import TransactionInfoResponse from "./models/transaction-info.response";
 import AccountTransactionsResponse from "./models/account-transactions.response";
 import AccountBalanceResponse from "./models/account-balance.response";
 import ContractStatusResponse from "./models/contract-status.response";
-import {ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery} from "@nestjs/swagger";
+import {ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation} from "@nestjs/swagger";
 import {Address, validateAndConvertAddress} from "jasmine-eth-ts";
 
 @Controller()
@@ -36,11 +36,11 @@ export default class InfoQueryController {
                            @Query("page", ParseIntPipe) page: number,
                            @Query("count", ParseIntPipe) count: number): Promise<BlocksQueryModel> {
         if (SortOrder.ASCENDING !== sortOrder && SortOrder.DESCENDING !== sortOrder) {
-            throw new BadRequestException(<TransactionsQueryResponse>{
+            throw new BadRequestException({
                 code: 400,
                 msg: "Query parameter 'sortOrder' must be 'asc' or 'desc'",
                 data: null,
-            });
+            } as TransactionsQueryResponse);
         }
 
         if (page <= 0) {

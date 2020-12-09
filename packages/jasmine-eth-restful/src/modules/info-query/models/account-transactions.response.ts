@@ -4,12 +4,12 @@ import MetadataModel from "./metadata.model";
 
 export class AccountTransactionsData {
     @ApiProperty()
-    metadata: MetadataModel;
+    metadata!: MetadataModel;
 
     @ApiProperty({
         type: [String],
     })
-    txHashes: string[];
+    txHashes!: string[];
 }
 
 export default class AccountTransactionsResponse extends ResponseModel {
@@ -17,5 +17,5 @@ export default class AccountTransactionsResponse extends ResponseModel {
         type: AccountTransactionsData,
         description: "transaction history of the account"
     })
-    data: AccountTransactionsData;
+    data!: AccountTransactionsData | null;
 }

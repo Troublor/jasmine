@@ -15,7 +15,6 @@ describe("TFC", () => {
         let sdk = new SDK(mockEth.endpoint);
         accounts = mockEth.predefinedPrivateKeys.map(key => sdk.retrieveAccount(key));
         let tfcAddress = await sdk.deployTFC(
-            accounts.slice(0, 20),
             accounts[0],
         );
         const configuration = () => ({

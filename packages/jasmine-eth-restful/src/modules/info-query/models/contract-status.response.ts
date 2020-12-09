@@ -4,13 +4,13 @@ import {ContractEvent, TransferEvent} from "./transaction-info.response";
 
 export class MintEventParams {
     @ApiProperty()
-    from: "0x0000000000000000000000000000000000000000";
+    from!: "0x0000000000000000000000000000000000000000";
 
     @ApiProperty()
-    to: string;
+    to!: string;
 
     @ApiProperty()
-    value: string;
+    value!: string;
 }
 
 export class MintEvent extends ContractEvent {
@@ -18,10 +18,10 @@ export class MintEvent extends ContractEvent {
         type: MintEventParams,
         description: "a special type of Transfer event which mint new ERC20 tokens"
     })
-    params: MintEventParams;
+    params!: MintEventParams;
 
     @ApiProperty()
-    name: "Mint";
+    name!: "Mint";
 }
 
 export class ContractStatus {
@@ -29,43 +29,43 @@ export class ContractStatus {
         type: String,
         description: "name of the ERC20 token",
     })
-    name: string;
+    name!: string;
 
     @ApiProperty({
         type: String,
         description: "symbol of the ERC20 token",
     })
-    symbol: string;
+    symbol!: string;
 
     @ApiProperty({
         type: Number,
         description: "decimals used by the ERC20 token"
     })
-    decimals: number;
+    decimals!: number;
 
     @ApiProperty({
         type: String,
         description: "address of the ERC20 contract"
     })
-    address: string;
+    address!: string;
 
     @ApiProperty({
         type: String,
         description: "total supply of the ERC20 token"
     })
-    totalSupply: string;
+    totalSupply!: string;
 
     @ApiProperty({
         type: [MintEvent],
         description: "token mint events",
     })
-    mintEvents: MintEvent[];
+    mintEvents!: MintEvent[];
 }
 
 export default class ContractStatusResponse extends ResponseModel {
     @ApiProperty({
         type: ContractStatus
     })
-    data: ContractStatus;
+    data!: ContractStatus | null;
 
 };

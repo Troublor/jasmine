@@ -7,17 +7,17 @@ export default class MetadataModel {
         type: Number,
         description: "latest block height"
     })
-    totalCount: number;
+    totalCount!: number;
 
     @ApiProperty({
         type: Number,
         description: "current page"
     })
-    page: number;
+    page!: number;
 
     @ApiProperty({
         type: Number,
         description: "total page count",
     })
-    count: number;
+    count!: number;
 };

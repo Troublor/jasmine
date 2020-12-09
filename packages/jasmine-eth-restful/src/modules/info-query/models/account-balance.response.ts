@@ -3,12 +3,12 @@ import {ApiProperty} from "@nestjs/swagger";
 
 export class AccountBalanceData {
     @ApiProperty()
-    balance: string;
+    balance!: string;
 }
 
 export default class AccountBalanceResponse extends ResponseModel {
     @ApiProperty({
         type: AccountBalanceData
     })
-    data: AccountBalanceData;
+    data!: AccountBalanceData | null;
 };

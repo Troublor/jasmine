@@ -1,5 +1,6 @@
 import {accounts, contract} from '@openzeppelin/test-environment';
 import {TfcTokenContract, TfcTokenInstance} from "../contracts/types";
+// @ts-ignore
 import {expectRevert} from "@openzeppelin/test-helpers";
 import {expect} from "chai";
 import * as BN from "bn.js";

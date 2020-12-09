@@ -4,6 +4,8 @@
     "target": "es5",
     "sourceMap": true,
     "esModuleInterop": true,
+    "strict": true,
+    "incremental": true,
     "types": [
       "contracts/types/*",
       "mocha"

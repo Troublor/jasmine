@@ -1,4 +1,5 @@
 import {accounts, privateKeys, contract, web3,} from '@openzeppelin/test-environment';
+// @ts-ignore
 import {expectRevert} from "@openzeppelin/test-helpers";
 import {expect} from "chai";
 import BN from "bn.js";

@@ -20,6 +20,7 @@ export default async () => {
     const schema = Joi.object({
         services: Joi.object().keys({
             ethereum: Joi.object({
+                defaultNetworkId: Joi.number().required(),
                 1: ethereumNetworkSchema,   // mainnet
                 4: ethereumNetworkSchema,   // rinkeby
                 2020: ethereumNetworkSchema,// private chain
@@ -50,7 +51,7 @@ export default async () => {
     config = result.value;
 
     // check contract deployment
-    const contractDeployed = async (sdk: SDK, contracts: {erc20: string, manager: string}): Promise<boolean> => {
+    const contractDeployed = async (sdk: SDK, contracts: { erc20: string, manager: string }): Promise<boolean> => {
         const managerAddress = contracts.manager;
         const tfcAddress = contracts.erc20;
         if (managerAddress && tfcAddress) {
@@ -70,6 +71,9 @@ export default async () => {
     // connect to existing blockchain, check deployment
     const networks = config.services.ethereum;
     for (const networkId in networks) {
+        if (networkId === "defaultNetworkId") {
+            continue;
+        }
         if (!networks.hasOwnProperty(networkId)) {
             continue;
         }

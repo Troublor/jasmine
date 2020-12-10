@@ -1,7 +1,7 @@
 import {Controller, Get, Param, ParseIntPipe} from "@nestjs/common";
 import EthereumService from "./ethereum.service";
 import NetworkIdPipe from "./pipes/network-id.pipe";
-import {ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags} from "@nestjs/swagger";
+import {ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags} from "@nestjs/swagger";
 import Response, {ResponseGenerator} from "../common/models/response.model";
 import {Tags} from "../common/tags";
 

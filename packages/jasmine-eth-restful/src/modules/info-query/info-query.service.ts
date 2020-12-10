@@ -8,7 +8,7 @@ import {
     ContractEvent,
     TransactionInfo,
     TransferEvent,
-    TransferEventParams
+    TransferEventParams,
 } from "./models/transaction-info.response";
 import BN from "bn.js";
 import {TransactionBasicInfo} from "./models/transactions-query.response";
@@ -17,16 +17,18 @@ import {BlockBasicInfo} from "./models/blocks-query.response";
 import {SortOrder} from "./models/sort-order";
 import Web3Utils from "web3-utils";
 
+const networkId = 2020;
+
 @Injectable()
-export default class InfoQueryservices {
+export default class InfoQueryServices {
 
     private readonly sdk: SDK;
 
     private readonly tfc: TFC;
 
     constructor(private readonly configService: ConfigService) {
-        this.sdk = new SDK(configService.get<string>('services.ethereum.endpoint', "ethereum endpoint unprovided"));
-        this.tfc = this.sdk.getTFC(configService.get<string>('services.ethereum.contracts.tfc-erc20', "tfc-erc20 address unprovided"));
+        this.sdk = new SDK(configService.get<string>(`services.ethereum.${networkId}.endpoint`, "ethereum endpoint unprovided"));
+        this.tfc = this.sdk.getTFC(configService.get<string>(`services.ethereum.${networkId}.contracts.erc20`, "tfc-erc20 address unprovided"));
     }
 
     public async getContractStatus(): Promise<ContractStatus> {
@@ -34,27 +36,27 @@ export default class InfoQueryservices {
             filter: {
                 from: "0x0000000000000000000000000000000000000000",
             },
-            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
+            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
         });
         const mintEvents = events.map(event => <MintEvent>{
             params: {
-                from: event.returnValues['from'],
-                to: event.returnValues['to'],
-                value: "0x" + new BN(event.returnValues['value']).toString("hex"),
+                from: event.returnValues["from"],
+                to: event.returnValues["to"],
+                value: "0x" + new BN(event.returnValues["value"]).toString("hex"),
             },
             raw: event.raw,
             signature: event.signature,
             address: event.address,
-        })
+        });
 
         return {
             name: await this.tfc.name(),
             symbol: await this.tfc.symbol(),
             decimals: await this.tfc.decimals(),
-            address: this.configService.get<string>('services.ethereum.contracts.tfc-erc20', "tfc-erc20 address unprovided"),
+            address: this.configService.get<string>(`services.ethereum.${networkId}.contracts.erc20`, "tfc-erc20 address unprovided"),
             totalSupply: "0x" + (await this.tfc.totalSupply()).toString("hex"),
             mintEvents: mintEvents,
-        }
+        };
     }
 
     public async getAccountBalance(address: Address): Promise<BN> {
@@ -66,28 +68,28 @@ export default class InfoQueryservices {
             filter: {
                 from: address,
             },
-            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
+            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
         });
 
         const toTransferEvents = await this.tfc.contract.getPastEvents("Transfer", {
             filter: {
                 to: address,
             },
-            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
+            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
         });
 
         const ownerApprovalEvents = await this.tfc.contract.getPastEvents("Approval", {
             filter: {
                 owner: address,
             },
-            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
+            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
         });
 
         const spenderApprovalEvents = await this.tfc.contract.getPastEvents("Approval", {
             filter: {
                 spender: address,
             },
-            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
+            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
         });
 
         let transferEvents = [...fromTransferEvents, ...toTransferEvents];
@@ -108,7 +110,7 @@ export default class InfoQueryservices {
 
         let transactionList = Object.values(transactions);
         transactionList = _.sortBy(transactionList, transaction => transaction.blockNumber);
-        return transactionList.map(tx => tx['hash']);
+        return transactionList.map(tx => tx["hash"]);
     }
 
     public async getBlockNumber(): Promise<number> {
@@ -209,12 +211,12 @@ export default class InfoQueryservices {
             input: tx.input,
             status: receipt ? receipt.status : null,
             events: events,
-        }
+        };
     }
 
     public async getTransactions(): Promise<TransactionBasicInfo[]> {
         const events = await this.tfc.contract.getPastEvents("allEvents", {
-            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
+            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
         });
         const txs = events
             .filter(event => ["Transfer", "Approval"].includes(event.event))
@@ -268,7 +270,7 @@ export default class InfoQueryservices {
 
     public async getBlocks(sortOrder: SortOrder, page: number, count: number): Promise<[BlockBasicInfo[], number]> {
         const events = await this.tfc.contract.getPastEvents("allEvents", {
-            fromBlock: this.configService.get<number>('services.restful.filter.fromBlock', 0),
+            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
         });
         const txs = events
             .filter(event => ["Transfer", "Approval"].includes(event.event))
@@ -289,7 +291,7 @@ export default class InfoQueryservices {
                 parentHash: block.parentHash,
                 timestamp: block.timestamp,
                 transactions: block.transactions,
-            })
+            });
         }
         return [blocks, Math.ceil(blockNumbers.length / count)];
     }

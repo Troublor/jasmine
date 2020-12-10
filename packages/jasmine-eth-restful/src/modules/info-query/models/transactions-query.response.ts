@@ -1,4 +1,4 @@
-import ResponseModel from "./response.model";
+import Response from "./../../common/models/response.model";
 import {ApiProperty} from "@nestjs/swagger";
 import MetadataModel from "./metadata.model";
 
@@ -27,15 +27,15 @@ export class TransactionsQueryData {
     metadata!: MetadataModel;
 
     @ApiProperty({
-        type: [TransactionBasicInfo]
+        type: [TransactionBasicInfo],
     })
     txs!: TransactionBasicInfo[]
 }
 
-export default class TransactionsQueryResponse extends ResponseModel {
+export default class TransactionsQueryResponse extends Response {
     @ApiProperty({
         type: TransactionsQueryData,
-        description: "list of basic information of transactions"
+        description: "list of basic information of transactions",
     })
     data!: TransactionsQueryData | null;
 };

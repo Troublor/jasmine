@@ -1,4 +1,4 @@
-import ResponseModel from "./response.model";
+import Response from "./../../common/models/response.model";
 import {ApiProperty} from "@nestjs/swagger";
 import MetadataModel from "./metadata.model";
 
@@ -23,13 +23,13 @@ export class BlockBasicInfo {
 
     @ApiProperty({
         type: Number,
-        description: "block time stamp"
+        description: "block time stamp",
     })
     timestamp!: number;
 
     @ApiProperty({
         type: [String],
-        description: "list of transaction hashes in the block"
+        description: "list of transaction hashes in the block",
     })
     transactions!: string[];
 }
@@ -39,15 +39,15 @@ export class BlocksQueryData {
     metadata!: MetadataModel;
 
     @ApiProperty({
-        type: [BlockBasicInfo]
+        type: [BlockBasicInfo],
     })
     blocks!: BlockBasicInfo[];
 }
 
-export default class BlocksQueryResponse extends ResponseModel {
+export default class BlocksQueryResponse extends Response {
     @ApiProperty({
         type: BlocksQueryData,
-        description: "blocks basic information"
+        description: "blocks basic information",
     })
     data!: BlocksQueryData | null;
 }

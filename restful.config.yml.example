@@ -1,0 +1,12 @@
+services:
+  ethereum:
+    2020:
+      endpoint: ETHEREUM_ENDPOINT
+      contracts:
+        erc20: TFC_ERC20_CONTRACT_ADDRESS
+        manager: TFC_MANAGER_CONTRACT_ADDRESS
+
+  restful:
+    filter:
+      fromBlock: 0
+    port: 8989

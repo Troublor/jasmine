@@ -1,4 +1,4 @@
-import ResponseModel from "./response.model";
+import Response from "./../../common/models/response.model";
 import {BlockBasicInfo} from "./blocks-query.response";
 import {ApiProperty} from "@nestjs/swagger";
 
@@ -53,7 +53,7 @@ export class BlockInfo extends BlockBasicInfo {
 
     @ApiProperty({
         type: Number,
-        description: "the size of this block in bytes"
+        description: "the size of this block in bytes",
     })
     size!: number;
 
@@ -71,13 +71,13 @@ export class BlockInfo extends BlockBasicInfo {
 
     @ApiProperty({
         type: Number,
-        description: "total gas used by transactions in this block"
+        description: "total gas used by transactions in this block",
     })
     gasUsed!: number;
 
     @ApiProperty({
         type: [String],
-        description: "a list of hash of uncles"
+        description: "a list of hash of uncles",
     })
     uncles!: string[];
 }
@@ -87,9 +87,9 @@ export class BlockInfoData {
     block!: BlockInfo;
 }
 
-export default class BlockInfoResponse extends ResponseModel {
+export default class BlockInfoResponse extends Response {
     @ApiProperty({
-        type: BlockInfoData
+        type: BlockInfoData,
     })
     data!: BlockInfoData | null;
 };

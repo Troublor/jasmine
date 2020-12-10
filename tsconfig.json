@@ -3,9 +3,14 @@
     "module": "commonjs",
     "target": "es2017",
     "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "strict": true,
-    "incremental": true
+    "incremental": true,
+    "types": [
+      "jest",
+      "node"
+    ]
   },
   "exclude": [
     "node_modules"

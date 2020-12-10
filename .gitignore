@@ -137,3 +137,5 @@ packages/jasmine-contracts/.DS_Store
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+
+restful.config.yml

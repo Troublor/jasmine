@@ -1,7 +1,8 @@
-import {Module} from '@nestjs/common';
+import {Module} from "@nestjs/common";
 import {ConfigModule} from "@nestjs/config";
 import configuration from "./config/configuration";
 import InfoQueryModule from "./modules/info-query/info-query.module";
+import EthereumModule from "./modules/ethereum/ethereum.module";
 
 @Module({
     imports: [
@@ -10,6 +11,7 @@ import InfoQueryModule from "./modules/info-query/info-query.module";
             load: [configuration],
         }),
         InfoQueryModule,
+        EthereumModule,
     ],
     controllers: [],
     providers: [],

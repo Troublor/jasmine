@@ -1,4 +1,4 @@
-import ResponseModel from "./response.model";
+import Response from "./../../common/models/response.model";
 import {ApiProperty} from "@nestjs/swagger";
 
 export class AccountBalanceData {
@@ -6,9 +6,9 @@ export class AccountBalanceData {
     balance!: string;
 }
 
-export default class AccountBalanceResponse extends ResponseModel {
+export default class AccountBalanceResponse extends Response {
     @ApiProperty({
-        type: AccountBalanceData
+        type: AccountBalanceData,
     })
     data!: AccountBalanceData | null;
 };

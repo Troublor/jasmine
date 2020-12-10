@@ -1,6 +1,6 @@
-import ResponseModel from "./response.model";
+import Response from "./../../common/models/response.model";
 import {ApiProperty} from "@nestjs/swagger";
-import {ContractEvent, TransferEvent} from "./transaction-info.response";
+import {ContractEvent} from "./transaction-info.response";
 
 export class MintEventParams {
     @ApiProperty()
@@ -16,7 +16,7 @@ export class MintEventParams {
 export class MintEvent extends ContractEvent {
     @ApiProperty({
         type: MintEventParams,
-        description: "a special type of Transfer event which mint new ERC20 tokens"
+        description: "a special type of Transfer event which mint new ERC20 tokens",
     })
     params!: MintEventParams;
 
@@ -39,19 +39,19 @@ export class ContractStatus {
 
     @ApiProperty({
         type: Number,
-        description: "decimals used by the ERC20 token"
+        description: "decimals used by the ERC20 token",
     })
     decimals!: number;
 
     @ApiProperty({
         type: String,
-        description: "address of the ERC20 contract"
+        description: "address of the ERC20 contract",
     })
     address!: string;
 
     @ApiProperty({
         type: String,
-        description: "total supply of the ERC20 token"
+        description: "total supply of the ERC20 token",
     })
     totalSupply!: string;
 
@@ -62,9 +62,9 @@ export class ContractStatus {
     mintEvents!: MintEvent[];
 }
 
-export default class ContractStatusResponse extends ResponseModel {
+export default class ContractStatusResponse extends Response {
     @ApiProperty({
-        type: ContractStatus
+        type: ContractStatus,
     })
     data!: ContractStatus | null;
 

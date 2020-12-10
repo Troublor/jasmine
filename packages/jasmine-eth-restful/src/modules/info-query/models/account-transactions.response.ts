@@ -1,4 +1,4 @@
-import ResponseModel from "./response.model";
+import Response from "./../../common/models/response.model";
 import {ApiProperty} from "@nestjs/swagger";
 import MetadataModel from "./metadata.model";
 
@@ -12,10 +12,10 @@ export class AccountTransactionsData {
     txHashes!: string[];
 }
 
-export default class AccountTransactionsResponse extends ResponseModel {
+export default class AccountTransactionsResponse extends Response {
     @ApiProperty({
         type: AccountTransactionsData,
-        description: "transaction history of the account"
+        description: "transaction history of the account",
     })
     data!: AccountTransactionsData | null;
 }

@@ -1,4 +1,4 @@
-import ResponseModel from "./response.model";
+import Response from "./../../common/models/response.model";
 import {TransactionBasicInfo} from "./transactions-query.response";
 import {ApiProperty} from "@nestjs/swagger";
 
@@ -14,7 +14,7 @@ export class ContractEventRaw {
 
 export abstract class ContractEvent {
     @ApiProperty({
-        description: "parameters of the event"
+        description: "parameters of the event",
     })
     abstract params: object;
 
@@ -32,7 +32,7 @@ export abstract class ContractEvent {
 
     @ApiProperty({
         type: String,
-        description: "signature of the event"
+        description: "signature of the event",
     })
     signature!: string;
 
@@ -57,7 +57,7 @@ export class TransferEventParams {
 export class TransferEvent extends ContractEvent {
     @ApiProperty({
         type: TransferEventParams,
-        description: "ERC20 Transfer event"
+        description: "ERC20 Transfer event",
     })
     params!: TransferEventParams;
 
@@ -79,7 +79,7 @@ export class ApprovalEventParams {
 export class ApprovalEvent extends ContractEvent {
     @ApiProperty({
         type: ApprovalEventParams,
-        description: "ERC20 Approval event"
+        description: "ERC20 Approval event",
     })
     params!: ApprovalEventParams;
 
@@ -120,19 +120,19 @@ export class TransactionInfo extends TransactionBasicInfo {
 
     @ApiProperty({
         type: Number,
-        description: "gas used in this transaction"
+        description: "gas used in this transaction",
     })
     gasUsed!: number;
 
     @ApiProperty({
         type: String,
-        description: "gas price"
+        description: "gas price",
     })
     gasPrice!: string;
 
     @ApiProperty({
         type: String,
-        description: "input of the transaction"
+        description: "input of the transaction",
     })
     input!: string;
 
@@ -154,10 +154,10 @@ export class TransactionInfoData {
     tx!: TransactionInfo;
 }
 
-export default class TransactionInfoResponse extends ResponseModel {
+export default class TransactionInfoResponse extends Response {
     @ApiProperty({
         type: TransactionInfoData,
-        description: "transaction information"
+        description: "transaction information",
     })
     data!: TransactionInfoData | null;
 };

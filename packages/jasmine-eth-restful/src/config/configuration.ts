@@ -1,48 +1,28 @@
-import {readFileSync} from 'fs';
-import * as yaml from 'js-yaml';
-import {join} from 'path';
+import {readFileSync} from "fs";
+import * as yaml from "js-yaml";
+import {join} from "path";
 import Joi from "@hapi/joi";
-import SDK, {MockEthereum} from "jasmine-eth-ts";
+import SDK from "jasmine-eth-ts";
 
-const YAML_CONFIG_FILENAME = join(__dirname, "..", "..", "..", "..", "config.yml");
+const YAML_CONFIG_FILENAME = join(__dirname, "..", "..", "..", "..", "restful.config.yml");
 
 export default async () => {
     let config = yaml.load(
-        readFileSync(YAML_CONFIG_FILENAME, 'utf8'),
+        readFileSync(YAML_CONFIG_FILENAME, "utf8"),
     );
+    const ethereumNetworkSchema = Joi.object({
+        endpoint: Joi.string().pattern(/^(http|ws)s?:\/\/(.*)$/).required(),
+        contracts: Joi.object().keys({
+            "erc20": Joi.string().required(),
+            "manager": Joi.string().required(),
+        }).required(),
+    });
     const schema = Joi.object({
         services: Joi.object().keys({
-            ethereum: Joi.object().keys({
-                existing: Joi.bool()
-                    .required(),
-                endpoint: Joi.string()
-                    .pattern(/^(http|ws)s?:\/\/(.*)$/)
-                    .when("existing", {
-                        is: true,
-                        then: Joi.required(),
-                        otherwise: null,
-                    }),
-                contracts: Joi.object().keys({
-                    "tfc-erc20": Joi.string()
-                        .default("0xE48d3271a3DE7E51eaA2f70Dd50B2Aa20D4C638E"), // default contract if deploy on MockEthereum
-                    "tfc-manager": Joi.string()
-                        .default("0x07a457d878BF363E0Bb5aa0B096092f941e19962"), // default contract if deploy on MockEthereum
-                }),
-                host: Joi.string()
-                    .hostname()
-                    .when("existing", {
-                        is: false,
-                        then: Joi.required(),
-                        otherwise: null,
-                    }),
-                port: Joi.number()
-                    .port()
-                    .when("existing", {
-                        is: false,
-                        then: Joi.required(),
-                        otherwise: null,
-                    }),
-                dbPath: Joi.string()
+            ethereum: Joi.object({
+                1: ethereumNetworkSchema,   // mainnet
+                4: ethereumNetworkSchema,   // rinkeby
+                2020: ethereumNetworkSchema,// private chain
             }).required(),
             restful: Joi.object().keys({
                 port: Joi.number()
@@ -69,9 +49,10 @@ export default async () => {
 
     config = result.value;
 
-    const contractDeployed = async (sdk: SDK): Promise<boolean> => {
-        let managerAddress = config.services.ethereum.contracts ? config.services.ethereum.contracts["tfc-manager"] : undefined;
-        let tfcAddress = config.services.ethereum.contracts ? config.services.ethereum.contracts["tfc-erc20"] : undefined;
+    // check contract deployment
+    const contractDeployed = async (sdk: SDK, contracts: {erc20: string, manager: string}): Promise<boolean> => {
+        const managerAddress = contracts.manager;
+        const tfcAddress = contracts.erc20;
         if (managerAddress && tfcAddress) {
             const manager = sdk.getManager(managerAddress);
             const tfc = sdk.getTFC(tfcAddress);
@@ -84,49 +65,17 @@ export default async () => {
             console.warn("Provided contract not exist on chain");
         }
         return false;
-    }
+    };
 
-    // start test private chain if needed
-    const existing = config.services.ethereum.existing;
-    let mockEth: MockEthereum | undefined;
-    if (!existing) {
-        // start private chain
-        const dbPath = config.services.ethereum.dbPath;
-        mockEth = new MockEthereum({
-            networkId: 2020,
-            network_id: 2020,
-            ws: true,
-            db_path: dbPath,
-        });
-        const host = config.services.ethereum.host;
-        const port = config.services.ethereum.port;
-        await mockEth.listenOn(host, port);
-        const sdk = new SDK(mockEth.endpoint);
-
-        config.services.ethereum.endpoint = mockEth.endpoint;
-
-        // check whether the contract has been deployed
-        if (!await contractDeployed(sdk)) {
-            // deploy TFC Manager contract
-            const admin = sdk.retrieveAccount(mockEth.predefinedPrivateKeys[9]);
-            const managerAddress = await sdk.deployManager(admin);
-            const manager = sdk.getManager(managerAddress);
-            const tfcAddress = await manager.tfcAddress();
-            console.log("Manager address:", managerAddress);
-            console.log("TFC address:", tfcAddress);
-            console.log("Admin address:", admin.address);
-            console.log("Admin private key:", admin.privateKey);
-            config.services.ethereum.contracts = {
-                "tfc-manager": managerAddress,
-                "tfc-erc20": tfcAddress,
-            }
+    // connect to existing blockchain, check deployment
+    const networks = config.services.ethereum;
+    for (const networkId in networks) {
+        if (!networks.hasOwnProperty(networkId)) {
+            continue;
         }
-
-    } else {
-        // connect to existing blockchain, check deployment
-        const endpoint = config.services.ethereum.endpoint;
+        const endpoint = networks[networkId].endpoint;
         const sdk = new SDK(endpoint);
-        if (!await contractDeployed(sdk)) {
+        if (!await contractDeployed(sdk, networks[networkId].contracts)) {
             throw new Error("Contract not deployed on blockchain");
         }
     }

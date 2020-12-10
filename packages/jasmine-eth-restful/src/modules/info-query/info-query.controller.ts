@@ -7,7 +7,7 @@ import {
     NotFoundException,
     Param,
     ParseIntPipe,
-    Query
+    Query,
 } from "@nestjs/common";
 import InfoQueryService from "./info-query.service";
 import {SortOrder} from "./models/sort-order";
@@ -18,10 +18,12 @@ import TransactionInfoResponse from "./models/transaction-info.response";
 import AccountTransactionsResponse from "./models/account-transactions.response";
 import AccountBalanceResponse from "./models/account-balance.response";
 import ContractStatusResponse from "./models/contract-status.response";
-import {ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation} from "@nestjs/swagger";
+import {ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags} from "@nestjs/swagger";
 import {Address, validateAndConvertAddress} from "jasmine-eth-ts";
+import {Tags} from "../common/tags";
 
 @Controller()
+@ApiTags(Tags.LEGACY)
 export default class InfoQueryController {
     constructor(
         private readonly infoQueryService: InfoQueryService,
@@ -71,14 +73,14 @@ export default class InfoQueryController {
                         count: result[1],
                     },
                     blocks: result[0],
-                }
+                },
             };
         } catch (e) {
             throw new InternalServerErrorException(<TransactionsQueryResponse>{
                 code: 500,
                 msg: e.toString(),
                 data: null,
-            })
+            });
         }
     }
 
@@ -110,7 +112,7 @@ export default class InfoQueryController {
                 msg: "OK",
                 data: {
                     block: block,
-                }
+                },
             };
         } catch (e) {
             if (e instanceof HttpException) {
@@ -128,9 +130,9 @@ export default class InfoQueryController {
     @ApiOperation({summary: "Query transactions"})
     @ApiBadRequestResponse({description: "Invalid query parameters"})
     @ApiOkResponse({type: TransactionsQueryResponse})
-    public async getTxs(@Query('sortOrder') sortOrder: SortOrder,
-                        @Query('page', ParseIntPipe) page: number,
-                        @Query('count', ParseIntPipe) count: number): Promise<TransactionsQueryResponse> {
+    public async getTxs(@Query("sortOrder") sortOrder: SortOrder,
+                        @Query("page", ParseIntPipe) page: number,
+                        @Query("count", ParseIntPipe) count: number): Promise<TransactionsQueryResponse> {
         if (SortOrder.ASCENDING !== sortOrder && SortOrder.DESCENDING !== sortOrder) {
             throw new BadRequestException(<TransactionsQueryResponse>{
                 code: 400,
@@ -167,17 +169,17 @@ export default class InfoQueryController {
                     metadata: {
                         totalCount: await this.infoQueryService.getBlockNumber(),
                         page: page,
-                        count: Math.ceil(txs.length / count)
+                        count: Math.ceil(txs.length / count),
                     },
                     txs: txs.slice(count * (page - 1), count * page),
-                }
+                },
             };
         } catch (e) {
             throw new InternalServerErrorException(<TransactionsQueryResponse>{
                 code: 500,
                 msg: e.toString(),
                 data: null,
-            })
+            });
         }
     }
 
@@ -186,7 +188,7 @@ export default class InfoQueryController {
     @ApiBadRequestResponse({description: "Invalid transaction hash"})
     @ApiNotFoundResponse({description: "Transaction not found"})
     @ApiOkResponse({type: TransactionInfoResponse})
-    public async getTx(@Param('txHash') txHash: string): Promise<TransactionInfoResponse> {
+    public async getTx(@Param("txHash") txHash: string): Promise<TransactionInfoResponse> {
         if (!this.infoQueryService.validateTxHash(txHash)) {
             throw new BadRequestException(<TransactionInfoResponse>{
                 code: 400,
@@ -208,7 +210,7 @@ export default class InfoQueryController {
                 msg: "OK",
                 data: {
                     tx: txInfo,
-                }
+                },
             };
         } catch (e) {
             if (e instanceof HttpException) {
@@ -226,9 +228,9 @@ export default class InfoQueryController {
     @ApiOperation({summary: "Query the history transactions of an account"})
     @ApiBadRequestResponse({description: "Invalid query parameters"})
     @ApiOkResponse({type: AccountTransactionsResponse})
-    public async getAccountTxs(@Param('address') address: string,
-                               @Query('page', ParseIntPipe) page: number,
-                               @Query('count', ParseIntPipe) count: number): Promise<AccountTransactionsResponse> {
+    public async getAccountTxs(@Param("address") address: string,
+                               @Query("page", ParseIntPipe) page: number,
+                               @Query("count", ParseIntPipe) count: number): Promise<AccountTransactionsResponse> {
         if (page <= 0) {
             throw new BadRequestException(<AccountTransactionsResponse>{
                 code: 400,
@@ -251,7 +253,7 @@ export default class InfoQueryController {
                 code: 400,
                 msg: "Invalid Ethereum address",
                 data: null,
-            })
+            });
         }
         try {
             const txHashes = await this.infoQueryService.getAccountTxs(address as Address);
@@ -265,14 +267,14 @@ export default class InfoQueryController {
                         count: Math.ceil(txHashes.length / count),
                     },
                     txHashes: txHashes.slice(count * (page - 1), count * page),
-                }
-            }
+                },
+            };
         } catch (e) {
             throw new InternalServerErrorException(<AccountTransactionsResponse>{
                 code: 500,
                 msg: e.toString(),
                 data: null,
-            })
+            });
         }
     }
 
@@ -280,8 +282,8 @@ export default class InfoQueryController {
     @ApiOperation({summary: "Query account ERC20 balance"})
     @ApiBadRequestResponse({description: "Invalid account address"})
     @ApiOkResponse({type: AccountBalanceResponse})
-    public async getAccountBalance(@Param('address') address: string): Promise<AccountBalanceResponse> {
-        const ethAddress = validateAndConvertAddress(address)
+    public async getAccountBalance(@Param("address") address: string): Promise<AccountBalanceResponse> {
+        const ethAddress = validateAndConvertAddress(address);
         if (!ethAddress) {
             throw new BadRequestException(<AccountBalanceResponse>{
                 code: 400,
@@ -303,7 +305,7 @@ export default class InfoQueryController {
                 code: 500,
                 msg: e.toString(),
                 data: null,
-            })
+            });
         }
     }
 
@@ -313,13 +315,14 @@ export default class InfoQueryController {
     // @ApiBadRequestResponse({description: "Invalid contract address"})
     // @ApiNotFoundResponse({description: "Contract not found"})
     @ApiOkResponse({type: ContractStatusResponse})
-    public async getContractStatus(@Param('contractAddress') contractAddress: string): Promise<ContractStatusResponse> {
+    // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+    public async getContractStatus(@Param("contractAddress") contractAddress: string): Promise<ContractStatusResponse> {
         try {
             return {
                 code: 200,
                 msg: "OK",
                 data: await this.infoQueryService.getContractStatus(),
-            }
+            };
         } catch (e) {
             throw new InternalServerErrorException(<ContractStatusResponse>{
                 code: 500,

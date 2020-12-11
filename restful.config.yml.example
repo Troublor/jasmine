@@ -1,7 +1,8 @@
 ethereum:
   endpoint:
-    http: ETHEREUM_HTTP_ENDPOINT
-    ws: ETHEREUM_WS_ENDPOINT
+    internal: ETHEREUM_ENDPOING used by restful API
+    http: ETHEREUM_HTTP_ENDPOINT provided to clients
+    ws: ETHEREUM_WS_ENDPOINT provided to clients
   contracts:
     erc20: TFC_ERC20_CONTRACT_ADDRESS
     manager: TFC_MANAGER_CONTRACT_ADDRESS

@@ -46,21 +46,29 @@ export default class EthereumController {
             type: "object",
             properties: {
                 endpoint: {
-                    type: "object", properties: {
+                    type: "object",
+                    properties: {
                         http: {type: "string"},
                         ws: {type: "string"},
                     },
                 },
-                manager: {type: "string"},
-                erc20: {type: "string"},
+                contracts: {
+                    type: "object",
+                    properties: {
+                        manager: {type: "string"},
+                        erc20: {type: "string"},
+                    },
+                },
             },
         },
     })
-    public getConfig(): Response<{ endpoint: { ws: string, http: string }, manager: string, erc20: string }> {
+    public getConfig(): Response<{ endpoint: { ws: string, http: string }, contracts: { manager: string, erc20: string } }> {
         return ResponseGenerator.OK({
             endpoint: this.ethereumService.getEndpoint(),
-            manager: this.managerService.getAddress(),
-            erc20: this.erc20Service.getAddress(),
+            contracts: {
+                manager: this.managerService.getAddress(),
+                erc20: this.erc20Service.getAddress(),
+            },
         });
     }
 };

@@ -1,12 +1,11 @@
-import {Controller, Get, Param, ParseIntPipe} from "@nestjs/common";
+import {Controller, Get} from "@nestjs/common";
 import {AddressResponse} from "./models/address.response";
 import {ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags} from "@nestjs/swagger";
-import NetworkIdPipe from "./pipes/network-id.pipe";
 import ManagerService from "./manager.service";
 import {ResponseGenerator} from "../common/models/response.model";
 import {Tags} from "../common/tags";
 
-@Controller("ethereum/:networkId/manager")
+@Controller("ethereum/manager")
 @ApiTags(Tags.ETHEREUM)
 export default class ManagerController {
     constructor(
@@ -18,11 +17,9 @@ export default class ManagerController {
     @ApiOperation({summary: "Get TFC Manager Contract Address"})
     @ApiBadRequestResponse({description: "Invalid query parameters"})
     @ApiOkResponse({type: AddressResponse})
-    public async getTFCManager(
-        @Param("networkId", ParseIntPipe, NetworkIdPipe) networkId: number
-    ): Promise<AddressResponse> {
+    public async getTFCManager(): Promise<AddressResponse> {
         return ResponseGenerator.OK({
-            address: this.managerService.getAddress(networkId),
+            address: this.managerService.getAddress(),
         });
     }
 };

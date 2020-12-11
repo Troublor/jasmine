@@ -18,7 +18,7 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, options, {});
     SwaggerModule.setup("api", app, document);
 
-    const restfulPort = config.get<string>("services.restful.port", "restful port unprovided");
+    const restfulPort = config.get<string>("port", "restful port unprovided");
     await app.listen(restfulPort);
 }
 

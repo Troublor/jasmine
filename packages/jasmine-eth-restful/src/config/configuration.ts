@@ -22,25 +22,16 @@ export default async () => {
         }).required(),
     });
     const schema = Joi.object({
-        services: Joi.object().keys({
-            ethereum: Joi.object({
-                defaultNetworkId: Joi.number().required(),
-                1: ethereumNetworkSchema,   // mainnet
-                4: ethereumNetworkSchema,   // rinkeby
-                2020: ethereumNetworkSchema,// private chain
-            }).required(),
-            restful: Joi.object().keys({
-                port: Joi.number()
-                    .port()
-                    .default(8989),
-                filter: Joi.object().keys({
-                    fromBlock: Joi.number()
-                        .integer()
-                        .min(0)
-                        .default(0),
-                }),
-            }),
-        }).required(),
+        ethereum: ethereumNetworkSchema,
+        port: Joi.number()
+            .port()
+            .default(8989),
+        filter: Joi.object().keys({
+            fromBlock: Joi.number()
+                .integer()
+                .min(0)
+                .default(0),
+        }),
     });
     const result = schema.validate(config, {
         allowUnknown: false,
@@ -73,19 +64,10 @@ export default async () => {
     };
 
     // connect to existing blockchain, check deployment
-    const networks = config.services.ethereum;
-    for (const networkId in networks) {
-        if (networkId === "defaultNetworkId") {
-            continue;
-        }
-        if (!networks.hasOwnProperty(networkId)) {
-            continue;
-        }
-        const endpoint = networks[networkId].endpoint.internal;
-        const sdk = new SDK(endpoint);
-        if (!await contractDeployed(sdk, networks[networkId].contracts)) {
-            throw new Error("Contract not deployed on blockchain");
-        }
+    const endpoint = config.ethereum.endpoint.internal;
+    const sdk = new SDK(endpoint);
+    if (!await contractDeployed(sdk, config.ethereum.contracts)) {
+        throw new Error("Contract not deployed on blockchain");
     }
 
     return config;

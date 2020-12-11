@@ -8,15 +8,15 @@ export default class EthereumService {
     ) {
     }
 
-    public getEndpoint(networkId: number): { ws: string, http: string } {
+    public getEndpoint(): { ws: string, http: string } {
         return {
             ws: this.configService.get<string>(
-                `services.ethereum.${networkId}.endpoint.ws`,
-                `endpoint for network ${networkId} not provided`
+                "ethereum.endpoint.ws",
+                "endpoint not provided"
             ),
             http: this.configService.get<string>(
-                `services.ethereum.${networkId}.endpoint.http`,
-                `endpoint for network ${networkId} not provided`
+                "ethereum.endpoint.http",
+                "endpoint not provided"
             ),
         };
     }

@@ -8,9 +8,9 @@ export default class ManagerService {
     ) {
     }
 
-    public getAddress(networkId: number): string {
+    public getAddress(): string {
         return this.configService.get<string>(
-            `services.ethereum.${networkId}.contracts.manager`,
+            "ethereum.contracts.manager",
             "no manager address provided"
         );
     }

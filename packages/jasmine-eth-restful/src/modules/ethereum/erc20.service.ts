@@ -8,9 +8,9 @@ export default class Erc20Service {
     ) {
     }
 
-    public getAddress(networkId: number): string {
+    public getAddress(): string {
         return this.configService.get<string>(
-            `services.ethereum.${networkId}.contracts.erc20`,
+            "ethereum.contracts.erc20",
             "no erc20 address provided"
         );
     }

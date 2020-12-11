@@ -27,8 +27,8 @@ export default class InfoQueryServices {
     private readonly tfc: TFC;
 
     constructor(private readonly configService: ConfigService) {
-        this.sdk = new SDK(configService.get<string>(`services.ethereum.${networkId}.endpoint`, "ethereum endpoint unprovided"));
-        this.tfc = this.sdk.getTFC(configService.get<string>(`services.ethereum.${networkId}.contracts.erc20`, "tfc-erc20 address unprovided"));
+        this.sdk = new SDK(configService.get<string>("ethereum.endpoint.internal", "ethereum endpoint unprovided"));
+        this.tfc = this.sdk.getTFC(configService.get<string>("ethereum.contracts.erc20", "tfc-erc20 address unprovided"));
     }
 
     public async getContractStatus(): Promise<ContractStatus> {
@@ -36,7 +36,7 @@ export default class InfoQueryServices {
             filter: {
                 from: "0x0000000000000000000000000000000000000000",
             },
-            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
+            fromBlock: this.configService.get<number>("filter.fromBlock", 0),
         });
         const mintEvents = events.map(event => <MintEvent>{
             params: {
@@ -53,7 +53,7 @@ export default class InfoQueryServices {
             name: await this.tfc.name(),
             symbol: await this.tfc.symbol(),
             decimals: await this.tfc.decimals(),
-            address: this.configService.get<string>(`services.ethereum.${networkId}.contracts.erc20`, "tfc-erc20 address unprovided"),
+            address: this.configService.get<string>("ethereum.contracts.erc20", "tfc-erc20 address unprovided"),
             totalSupply: "0x" + (await this.tfc.totalSupply()).toString("hex"),
             mintEvents: mintEvents,
         };
@@ -68,28 +68,28 @@ export default class InfoQueryServices {
             filter: {
                 from: address,
             },
-            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
+            fromBlock: this.configService.get<number>("filter.fromBlock", 0),
         });
 
         const toTransferEvents = await this.tfc.contract.getPastEvents("Transfer", {
             filter: {
                 to: address,
             },
-            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
+            fromBlock: this.configService.get<number>("filter.fromBlock", 0),
         });
 
         const ownerApprovalEvents = await this.tfc.contract.getPastEvents("Approval", {
             filter: {
                 owner: address,
             },
-            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
+            fromBlock: this.configService.get<number>("filter.fromBlock", 0),
         });
 
         const spenderApprovalEvents = await this.tfc.contract.getPastEvents("Approval", {
             filter: {
                 spender: address,
             },
-            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
+            fromBlock: this.configService.get<number>("filter.fromBlock", 0),
         });
 
         let transferEvents = [...fromTransferEvents, ...toTransferEvents];
@@ -216,7 +216,7 @@ export default class InfoQueryServices {
 
     public async getTransactions(): Promise<TransactionBasicInfo[]> {
         const events = await this.tfc.contract.getPastEvents("allEvents", {
-            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
+            fromBlock: this.configService.get<number>("filter.fromBlock", 0),
         });
         const txs = events
             .filter(event => ["Transfer", "Approval"].includes(event.event))
@@ -270,7 +270,7 @@ export default class InfoQueryServices {
 
     public async getBlocks(sortOrder: SortOrder, page: number, count: number): Promise<[BlockBasicInfo[], number]> {
         const events = await this.tfc.contract.getPastEvents("allEvents", {
-            fromBlock: this.configService.get<number>("services.restful.filter.fromBlock", 0),
+            fromBlock: this.configService.get<number>("filter.fromBlock", 0),
         });
         const txs = events
             .filter(event => ["Transfer", "Approval"].includes(event.event))

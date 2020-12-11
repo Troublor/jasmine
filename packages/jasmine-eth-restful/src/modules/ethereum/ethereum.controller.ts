@@ -1,13 +1,12 @@
-import {Controller, Get, Param, ParseIntPipe} from "@nestjs/common";
+import {Controller, Get} from "@nestjs/common";
 import EthereumService from "./ethereum.service";
-import NetworkIdPipe from "./pipes/network-id.pipe";
 import {ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags} from "@nestjs/swagger";
 import Response, {ResponseGenerator} from "../common/models/response.model";
 import {Tags} from "../common/tags";
 import Erc20Service from "./erc20.service";
 import ManagerService from "./manager.service";
 
-@Controller("ethereum/:networkId")
+@Controller("ethereum")
 @ApiTags(Tags.ETHEREUM)
 export default class EthereumController {
     constructor(
@@ -33,11 +32,9 @@ export default class EthereumController {
             },
         },
     })
-    public getEndpoint(
-        @Param("networkId", ParseIntPipe, NetworkIdPipe) networkId: number
-    ): Response<{ endpoint: { ws: string, http: string } }> {
+    public getEndpoint(): Response<{ endpoint: { ws: string, http: string } }> {
         return ResponseGenerator.OK({
-            endpoint: this.ethereumService.getEndpoint(networkId),
+            endpoint: this.ethereumService.getEndpoint(),
         });
     }
 
@@ -59,13 +56,11 @@ export default class EthereumController {
             },
         },
     })
-    public getConfig(
-        @Param("networkId", ParseIntPipe, NetworkIdPipe) networkId: number
-    ): Response<{ endpoint: { ws: string, http: string }, manager: string, erc20: string }> {
+    public getConfig(): Response<{ endpoint: { ws: string, http: string }, manager: string, erc20: string }> {
         return ResponseGenerator.OK({
-            endpoint: this.ethereumService.getEndpoint(networkId),
-            manager: this.managerService.getAddress(networkId),
-            erc20: this.erc20Service.getAddress(networkId),
+            endpoint: this.ethereumService.getEndpoint(),
+            manager: this.managerService.getAddress(),
+            erc20: this.erc20Service.getAddress(),
         });
     }
 };

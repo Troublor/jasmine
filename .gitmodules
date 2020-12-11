@@ -1,6 +1,3 @@
-[submodule "packages/jasmine-eth-go"]
-	path = packages/jasmine-eth-go
-	url = https://github.com/Troublor/jasmine-eth-go.git
 [submodule "packages/jasmine-eth-ts"]
 	path = packages/jasmine-eth-ts
 	url = https://github.com/Troublor/jasmine-eth-ts.git

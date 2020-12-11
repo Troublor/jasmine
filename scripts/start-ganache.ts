@@ -10,17 +10,21 @@ import * as fs from "fs";
 
 (async () => {
     let response4 = await prompts({
-        type: "confirm",
-        name: "newChain",
+        type: "select",
+        name: "startType",
         message: "Create a brand-new blockchain or use an existing one?",
-        initial: true,
+        choices: [
+            {title: 'Start a new chain', value: 'new'},
+            {title: 'Using existing chain', value: 'existing'},
+        ],
+        initial: 0,
     });
-    if (response4.newChain === undefined) {
+    if (response4.startType === undefined) {
         return;
     }
     let accounts: { secretKey: string, balance: string }[] | undefined;
     let dbPath: string | undefined;
-    if (response4.newChain) {
+    if (response4.startType === "new") {
         let response0 = await prompts({
             type: "confirm",
             name: "generateAccount",
@@ -91,7 +95,7 @@ import * as fs from "fs";
             }
             dbPath = response5.dbPath;
         }
-    } else {
+    } else if (response4.startType === "existing") {
         const response5 = await prompts({
             type: "text",
             name: "dbPath",
@@ -110,7 +114,7 @@ import * as fs from "fs";
             return;
         }
         dbPath = response5.dbPath;
-    }
+    } else return
 
     let response3 = await prompts({
         type: "text",
@@ -132,6 +136,15 @@ import * as fs from "fs";
     });
     const port = response2.port;
 
+    let response5 = await prompts({
+        type: "number",
+        min: 0,
+        name: "blockTime",
+        message: "Provide the time interval of block mining (in seconds)",
+        initial: 0
+    });
+    const blockTime = response5.blockTime;
+
     const args = [`--port`, port, `--host`, host,];
     if (accounts) {
         for (let alloc of accounts) {
@@ -143,6 +156,7 @@ import * as fs from "fs";
     args.push("--gasPrice", "0x0");
     args.push("--chainId", "2020");
     args.push("--networkId", "2020");
+    args.push("--blockTime", blockTime);
 
     if (dbPath) {
         args.push("--db", dbPath);

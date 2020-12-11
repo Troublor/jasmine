@@ -24,13 +24,18 @@ export default class EthereumController {
         schema: {
             type: "object",
             properties: {
-                endpoint: {type: "string"},
+                endpoint: {
+                    type: "object", properties: {
+                        http: {type: "string"},
+                        ws: {type: "string"},
+                    },
+                },
             },
         },
     })
     public getEndpoint(
         @Param("networkId", ParseIntPipe, NetworkIdPipe) networkId: number
-    ): Response<{ endpoint: string }> {
+    ): Response<{ endpoint: { ws: string, http: string } }> {
         return ResponseGenerator.OK({
             endpoint: this.ethereumService.getEndpoint(networkId),
         });
@@ -43,7 +48,12 @@ export default class EthereumController {
         schema: {
             type: "object",
             properties: {
-                endpoint: {type: "string"},
+                endpoint: {
+                    type: "object", properties: {
+                        http: {type: "string"},
+                        ws: {type: "string"},
+                    },
+                },
                 manager: {type: "string"},
                 erc20: {type: "string"},
             },
@@ -51,7 +61,7 @@ export default class EthereumController {
     })
     public getConfig(
         @Param("networkId", ParseIntPipe, NetworkIdPipe) networkId: number
-    ): Response<{ endpoint: string }> {
+    ): Response<{ endpoint: { ws: string, http: string }, manager: string, erc20: string }> {
         return ResponseGenerator.OK({
             endpoint: this.ethereumService.getEndpoint(networkId),
             manager: this.managerService.getAddress(networkId),

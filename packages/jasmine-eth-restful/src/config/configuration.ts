@@ -11,7 +11,11 @@ export default async () => {
         readFileSync(YAML_CONFIG_FILENAME, "utf8"),
     );
     const ethereumNetworkSchema = Joi.object({
-        endpoint: Joi.string().pattern(/^(http|ws)s?:\/\/(.*)$/).required(),
+        endpoint: Joi.object({
+            internal: Joi.string().pattern(/^(http|ws)s?:\/\/(.*)$/).required(),
+            http: Joi.string().pattern(/^(http)s?:\/\/(.*)$/).required(),
+            ws: Joi.string().pattern(/^(ws)s?:\/\/(.*)$/).required(),
+        }),
         contracts: Joi.object().keys({
             "erc20": Joi.string().required(),
             "manager": Joi.string().required(),
@@ -77,7 +81,7 @@ export default async () => {
         if (!networks.hasOwnProperty(networkId)) {
             continue;
         }
-        const endpoint = networks[networkId].endpoint;
+        const endpoint = networks[networkId].endpoint.internal;
         const sdk = new SDK(endpoint);
         if (!await contractDeployed(sdk, networks[networkId].contracts)) {
             throw new Error("Contract not deployed on blockchain");

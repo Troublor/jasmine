@@ -19,7 +19,7 @@
     "build:contracts": "ts-node scripts/build_contracts_for_sdk.ts",
     "build:ts-sdk": "yarn workspace jasmine-eth-ts build",
     "build": "yarn build:contracts && yarn build:ts-sdk",
-    "start:restful": "yarn workspace jasmine-eth-restful start",
+    "start:restful": "/bin/sh scripts/start-restful.sh",
     "test": "yarn workspace jasmine-contracts test && yarn workspace jasmine-eth-ts test && yarn workspace jasmine-eth-go test"
   },
   "devDependencies": {

@@ -3,6 +3,7 @@
 DIR=.
 # check if restful submodule has been pulled
 if [ ! -f "$DIR"/packages/jasmine-restful/package.json ]; then
+  rm "$DIR"/packages/jasmine-restful/config.yml
   git submodule update --init --recursive
 fi
 

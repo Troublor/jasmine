@@ -3,8 +3,9 @@
  */
 
 import prompts from "prompts";
-import SDK, {Account, Address} from "jasmine-eth-ts";
+import SDK, {Account, Address, TFC} from "jasmine-eth-ts";
 import BN from "bn.js";
+import * as _ from "lodash";
 
 let sdk: SDK | undefined;
 
@@ -68,6 +69,37 @@ let sdk: SDK | undefined;
         return;
     }
 
+    const response2 = await prompts({
+        type: "confirm",
+        name: "migrate",
+        message: "Do you want to migrate from existing TFC contract?",
+        initial: false,
+    });
+    let legacyTfc: TFC | undefined;
+    if (response2.migrate) {
+        while (!legacyTfc) {
+            const response3 = await prompts({
+                type: "text",
+                name: "legacyTFCAddress",
+                message: "What is the existing TFCToken (ERC20) contract address?",
+
+            });
+            if (response3.legacyTFCAddress === undefined) {
+                return;
+            }
+            try {
+                const contract = sdk.getTFC(response3.legacyTFCAddress);
+                const symbol = await contract.symbol();
+                if (symbol !== "TFC") {
+                    console.error(`Contract at ${response3.legacyTFCAddress} is not a TFCToken (ERC20) contract`);
+                }
+                legacyTfc = contract;
+            } catch (e) {
+                console.error(`Address ${response3.legacyTFCAddress} is not a TFCToken (ERC20) contract`);
+            }
+        }
+    }
+
     console.log(`Deploying TFC ERC20 contracts...`);
     let managerAddress: Address;
     try {
@@ -78,16 +110,37 @@ let sdk: SDK | undefined;
         return;
     }
 
-    console.log(`TFCManager contract address: ${managerAddress}`);
     const manager = sdk.getManager(managerAddress);
+    let tfcAddress: string;
     try {
-        const tfcAddress = await manager.tfcAddress();
-        console.log(`TFCToken (ERC20) contract address: ${tfcAddress}`);
-        console.log(`Admin account address: ${deployer.address}`);
-        console.log(`Admin account private key: ${deployer.privateKey}`);
+        tfcAddress = await manager.tfcAddress();
     } catch (e) {
         console.error(`Fetch TFCToken contract address error: ${e.toString()}`);
         return;
     }
+
+    const tfc = sdk.getTFC(tfcAddress);
+
+    if (response2.migrate) {
+        console.log("Migrating from legacy TFCToken (ERC20) contract...");
+        if (legacyTfc === undefined) {
+            return;
+        }
+        const transferEvents = await legacyTfc.contract.getPastEvents("Transfer", {fromBlock: 0});
+        const addresses = _.uniq(transferEvents.map(event => event.returnValues["to"]));
+        for (const addr of addresses) {
+            const balance = await legacyTfc.balanceOf(addr);
+            if (balance.gt(new BN(0))) {
+                console.log(`Migrating account ${addr} with balance ${balance}`);
+                await tfc.mint(addr, balance, deployer);
+            }
+        }
+        console.log("Migration done");
+    }
+
+    console.log(`TFCManager contract address: ${managerAddress}`);
+    console.log(`TFCToken (ERC20) contract address: ${tfcAddress}`);
+    console.log(`Admin account address: ${deployer.address}`);
+    console.log(`Admin account private key: ${deployer.privateKey}`);
     process.exit(0);
 })()

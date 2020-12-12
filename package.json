@@ -12,6 +12,7 @@
     "dev:deploy-contracts": "ts-node scripts/deploy-contract.ts",
     "dev:start-blockchain": "ts-node scripts/start-ganache.ts",
     "dev:sign-TFC-claim": "ts-node scripts/sign-TFC-claim.ts",
+    "dev:faucet-TFC": "ts-node scripts/faucet-TFC.ts",
     "dev:ganache": "ganache-cli --deterministic",
     "dev:gen-account": "ts-node scripts/generate_account.ts",
     "test:blockchian": "cd blockchain && bash reset.sh && bash start.sh",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@types/chalk": "^2.2.0",
     "@types/ganache-core": "^2.7.0",
+    "@types/lodash": "^4.14.165",
     "@types/node": "^14.14.12",
     "@types/prompts": "^2.0.9",
     "ganache-cli": "^6.12.1"
@@ -34,6 +36,7 @@
     "chalk": "^4.1.0",
     "ethereumjs-wallet": "^1.0.1",
     "ganache-core": "^2.13.1",
+    "lodash": "^4.17.20",
     "prompts": "^2.4.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"

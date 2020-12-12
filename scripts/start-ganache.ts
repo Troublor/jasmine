@@ -3,16 +3,121 @@
  */
 
 import prompts from "prompts";
-import Wallet from 'ethereumjs-wallet'
-import BN from "bn.js";
-import * as child_process from "child_process";
 import * as fs from "fs";
+import {WriteStream} from "fs";
+import path from "path";
+import chalk from "chalk";
+import ganacheCore from "ganache-core";
+
+interface JsonRpcRequest {
+    id: number,
+    method: string,
+    params: any[],
+}
+
+interface JsonRpcResponse {
+    id: number,
+    result: any,
+}
+
+class Logger {
+    private readonly logStream: WriteStream;
+
+    private pendingRequests: { [id: number]: JsonRpcRequest[] } = {};
+
+    constructor(
+        private readonly logFilePath: string,
+        private readonly ignoredRPCs: string[] = []) {
+        this.logStream = fs.createWriteStream(logFilePath);
+    }
+
+    log(data: string) {
+        if (Logger.isRequest(data)) {
+            const req = Logger.parseRequest(data);
+            if (!this.pendingRequests[req.id]) {
+                this.pendingRequests[req.id] = [];
+            }
+            this.pendingRequests[req.id].push(req);
+        } else if (Logger.isResponse(data)) {
+            const resp = Logger.parseResponse(data);
+            if (resp.id in this.pendingRequests && this.pendingRequests[resp.id].length > 0) {
+                const req = this.pendingRequests[resp.id].pop() as JsonRpcRequest;
+                if (this.ignoredRPCs.includes(req.method)) {
+                    return;
+                }
+                this.logRequestResponse(req, resp);
+            } else {
+                // no match request
+                this.logRequestResponse(undefined, resp);
+            }
+        } else if (Logger.isMethodName(data)) {
+            return;
+        } else {
+            this._log(data);
+        }
+    }
+
+    private _log(msg: string) {
+        const time = currentTimeString();
+        console.log(chalk.green(`[${time}] `) + msg);
+        this.logStream.write(`[${time}] ` + msg + "\n");
+    }
+
+    private logRequestResponse(req: JsonRpcRequest | undefined, resp: JsonRpcResponse) {
+        const served = {
+            method: req?.method,
+            params: req?.params,
+            result: resp.result,
+        }
+        const msg = `Served JSON-RPC: ${JSON.stringify(served)}`;
+        this._log(msg);
+    }
+
+    private static isRequest(data: string): boolean {
+        return data.trim().startsWith(">");
+    }
+
+    private static isResponse(data: string): boolean {
+        return data.trim().startsWith("<");
+    }
+
+    private static isMethodName(data: string): boolean {
+        return new RegExp(/^[a-zA-Z]/).test(data);
+    }
+
+    private static parseResponse(data: string): JsonRpcResponse {
+        data = data.replace(/\s<\s\s/g, "");
+        return JSON.parse(data);
+    }
+
+    private static parseRequest(data: string): JsonRpcRequest {
+        data = data.replace(/\s\s>\s/g, "");
+        return JSON.parse(data);
+    }
+
+    close() {
+        this.logStream.close();
+    }
+}
+
+const logDir = path.join(__dirname, "..", "logs");
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir);
+}
+
+function currentTimeString(): string {
+    const now = new Date();
+    return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()},${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+}
+
+const logger = new Logger(path.join(__dirname, "..", "logs", `private-chain.${currentTimeString()}.log`), ["eth_blockNumber"]);
+
 
 (async () => {
     let response4 = await prompts({
         type: "select",
         name: "startType",
-        message: "Create a brand-new blockchain or use an existing one?",
+        message: "Start a new private blockchain or use an existing one?",
         choices: [
             {title: 'Start a new chain', value: 'new'},
             {title: 'Using existing chain', value: 'existing'},
@@ -22,79 +127,17 @@ import * as fs from "fs";
     if (response4.startType === undefined) {
         return;
     }
-    let accounts: { secretKey: string, balance: string }[] | undefined;
     let dbPath: string | undefined;
     if (response4.startType === "new") {
-        let response0 = await prompts({
-            type: "confirm",
-            name: "generateAccount",
-            message: "Do you want to use automatically generated accounts?",
-            initial: true,
+        const response5 = await prompts({
+            type: "text",
+            name: "dbPath",
+            message: "What is the path to save chain database? (absolute path)",
         });
-        if (response0.generateAccount === undefined) {
-            return;
-        } else if (!response0.generateAccount) {
-            let response1 = await prompts({
-                type: "text",
-                name: "alloc",
-                message: "What is your account ETH allocation config? format: JSON {[privateKey]: balance}",
-                validate: input => {
-                    try {
-                        const alloc = JSON.parse(input);
-                        for (let privateKey of Object.keys(alloc)) {
-                            const balance = alloc[privateKey];
-                            try {
-                                if (privateKey.startsWith("0x")) {
-                                    privateKey = privateKey.slice(2);
-                                }
-                                Wallet.fromPrivateKey(Buffer.from(privateKey, "hex"));
-                            } catch (e) {
-                                return `Invalid private key: ${e.toString()}`;
-                            }
-                        }
-                    } catch (e) {
-                        return `Invalid format, example: {"0xeee892cf591ae7d941e5b38bc98c900e430e1821046384bc756a3fe9e7840204":"1000000000000000000"}`
-                    }
-                    return true;
-                }
-            });
-            const alloc = JSON.parse(response1.alloc);
-            accounts = [];
-            for (let privateKey of Object.keys(alloc)) {
-                const b = alloc[privateKey];
-                if (!privateKey.startsWith("0x")) {
-                    privateKey = "0x" + privateKey;
-                }
-                accounts.push({
-                    secretKey: privateKey,
-                    balance: "0x" + new BN(b).toString("hex")
-                });
-            }
-        } else {
-            accounts = undefined;
-        }
-
-        const response6 = await prompts({
-            type: "confirm",
-            name: "saveChain",
-            message: "Do you want to save the chain?",
-            initial: false
-        });
-        if (response6.saveChain === undefined) {
+        if (response5.dbPath === undefined) {
             return;
         }
-
-        if (response6.saveChain) {
-            const response5 = await prompts({
-                type: "text",
-                name: "dbPath",
-                message: "What is the path to save chain database?",
-            });
-            if (response5.dbPath === undefined) {
-                return;
-            }
-            dbPath = response5.dbPath;
-        }
+        dbPath = response5.dbPath;
     } else if (response4.startType === "existing") {
         const response5 = await prompts({
             type: "text",
@@ -106,6 +149,10 @@ import * as fs from "fs";
                 }
                 if (!fs.statSync(prev).isDirectory()) {
                     return `path ${prev} is not a directory`;
+                }
+                if (!fs.existsSync(path.join(prev, "!blocks!0")) ||
+                    !fs.statSync(path.join(prev, "!blocks!0")).isFile()) {
+                    return `path ${prev} doesn't seem to be an existing chain database`
                 }
                 return true;
             }
@@ -136,6 +183,10 @@ import * as fs from "fs";
     });
     const port = response2.port;
 
+    if (!port) {
+        return;
+    }
+
     let response5 = await prompts({
         type: "number",
         min: 0,
@@ -145,24 +196,81 @@ import * as fs from "fs";
     });
     const blockTime = response5.blockTime;
 
-    const args = [`--port`, port, `--host`, host,];
-    if (accounts) {
-        for (let alloc of accounts) {
-            args.push("--account", `${alloc.secretKey},${alloc.balance}`);
-        }
-    } else {
-        args.push("--deterministic");
+    logger.log("Starting private Ethereum blockchain...");
+    logger.log(`[Config] Data directory: ${dbPath}`);
+    logger.log(`[Config] Http Ethereum endpoint: http://${host}:${port}`);
+    logger.log(`[Config] WebSocket Ethereum endpoint: ws://${host}:${port}`);
+    if (blockTime == 0) {
+        logger.log(`[Config] Only mine blocks when transaction comes`);
+    } else if (blockTime > 0) {
+        logger.log(`[Config] Mine blocks at time interval of ${blockTime} seconds`);
     }
-    args.push("--gasPrice", "0x0");
-    args.push("--chainId", "2020");
-    args.push("--networkId", "2020");
-    args.push("--blockTime", blockTime);
+    const mnemonic = "myth like bonus scare over problem client lizard pioneer submit female collect";
 
-    if (dbPath) {
-        args.push("--db", dbPath);
+    const config: ganacheCore.IServerOptions = {
+        port: port,
+        mnemonic: mnemonic,
+        gasPrice: "0x0",
+        network_id: 2020,
+        networkId: 2020,
+        ws: true,
+        gasLimit: "0xffffffff",
+        db_path: dbPath,
+        logger: logger,
+        verbose: true,
     }
-    child_process.spawnSync("ganache-cli", args, {
-        stdio: "inherit"
-    });
+    if (blockTime > 0) {
+        config.blockTime = blockTime;
+    }
+    // @ts-ignore
+    config["_chainId"] = 2020;
+    // @ts-ignore
+    config["_chainIdRpc"] = 2020;
+
+    console.log();
+
+    const server = ganacheCore.server(config);
+
+    const listener = (err: Error, blockchain: any) => {
+        const accounts = blockchain.accounts;
+        let count = 0;
+        for (const address in accounts) {
+            if (accounts.hasOwnProperty(address)) {
+                const account: { secretKey: Buffer } = accounts[address];
+                logger.log(`[Account ${count}] Address: ${address}`);
+                logger.log(`[Account ${count}] PrivateKey: 0x${account.secretKey.toString('hex')}`);
+                count++;
+            }
+        }
+    }
+
+    process.on("uncaughtException", function (e) {
+        console.log(e.stack);
+        process.exit(1);
+    })
+
+    const closeHandler = function () {
+        console.log(chalk.yellow(`Blockchain data is stored at ${dbPath}`));
+        console.log("Set chain database path to this path to restore the blockchain");
+        // graceful shutdown
+        server.close(function (err) {
+            if (err) {
+                console.log(err.stack || err);
+                process.exit();
+            } else {
+                process.exit(0);
+            }
+        });
+        logger.log("Blockchain stopped");
+        logger.close();
+    }
+
+    process.on("SIGINT", closeHandler);
+    process.on("SIGTERM", closeHandler);
+    process.on("SIGHUP", closeHandler);
+
+    // @ts-ignore
+    server.listen(port, host, listener);
+    logger.log("Blockchain started");
 
 })()

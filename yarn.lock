@@ -2085,6 +2085,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/chalk@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@types/chalk@npm:2.2.0"
+  dependencies:
+    chalk: "*"
+  checksum: 9cded9031f180268be59010fc1e13c7b4384e51f0ca8b75bc7a40bdd46f5f3c4859953525fb53663287e5bb25ca5df59396c276ce5c09e1a83aa7a2aec6a9f59
+  languageName: node
+  linkType: hard
+
 "@types/connect@npm:*":
   version: 3.4.34
   resolution: "@types/connect@npm:3.4.34"
@@ -2164,6 +2173,15 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 0b4c28d8fd7d1ee4c78976b0ddc6075e8f42f1b784edafac0b4d2bbbdaee795a3873cff550dddab0b2fc86b3a6722d850c685ae80f424e679ec9fb976244da3b
+  languageName: node
+  linkType: hard
+
+"@types/ganache-core@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "@types/ganache-core@npm:2.7.0"
+  dependencies:
+    ganache-core: "*"
+  checksum: 0b7e4fe420f498bec7ff050b95215155bc9a921e6c9be0a201f8dfae98311f88e915823ac57548033b02bc3ae0ef47ed0c08719128305b08e0d0d4e41ed68a57
   languageName: node
   linkType: hard
 
@@ -4934,6 +4952,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chalk@npm:*, chalk@npm:^4.0.0, chalk@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "chalk@npm:4.1.0"
+  dependencies:
+    ansi-styles: ^4.1.0
+    supports-color: ^7.1.0
+  checksum: f860285b419f9e925c2db0f45ffa88aa8794c14b80cc5d01ff30930bcfc384996606362706f0829cf557f6d36152a5fb2d227ad63c4bc90e2ec9e9dbed4a3c07
+  languageName: node
+  linkType: hard
+
 "chalk@npm:3.0.0, chalk@npm:^3.0.0":
   version: 3.0.0
   resolution: "chalk@npm:3.0.0"
@@ -4965,16 +4993,6 @@ __metadata:
     escape-string-regexp: ^1.0.5
     supports-color: ^5.3.0
   checksum: 22c7b7b5bc761c882bb6516454a1a671923f1c53ff972860065aa0b28a195f230163c1d46ee88bcc7a03e5539177d896457d8bc727de7f244c6e87032743038e
-  languageName: node
-  linkType: hard
-
-"chalk@npm:^4.0.0, chalk@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "chalk@npm:4.1.0"
-  dependencies:
-    ansi-styles: ^4.1.0
-    supports-color: ^7.1.0
-  checksum: f860285b419f9e925c2db0f45ffa88aa8794c14b80cc5d01ff30930bcfc384996606362706f0829cf557f6d36152a5fb2d227ad63c4bc90e2ec9e9dbed4a3c07
   languageName: node
   linkType: hard
 
@@ -8377,7 +8395,7 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"ganache-core@npm:^2.11.2, ganache-core@npm:^2.13.1":
+"ganache-core@npm:*, ganache-core@npm:^2.11.2, ganache-core@npm:^2.13.1":
   version: 2.13.1
   resolution: "ganache-core@npm:2.13.1"
   dependencies:
@@ -9972,9 +9990,13 @@ fsevents@~2.1.2:
   version: 0.0.0-use.local
   resolution: "jasmine@workspace:."
   dependencies:
+    "@types/chalk": ^2.2.0
+    "@types/ganache-core": ^2.7.0
+    "@types/node": ^14.14.12
     "@types/prompts": ^2.0.9
     axios: ^0.21.0
     bn.js: ^5.1.3
+    chalk: ^4.1.0
     ethereumjs-wallet: ^1.0.1
     ganache-cli: ^6.12.1
     ganache-core: ^2.13.1

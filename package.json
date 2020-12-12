@@ -1,7 +1,6 @@
 {
   "name": "jasmine",
   "version": "1.0.0",
-  "main": "index.js",
   "repository": "github.com/Troublor/jasmine",
   "author": "Troublor",
   "license": "Apache-2",
@@ -23,12 +22,16 @@
     "test": "yarn workspace jasmine-contracts test && yarn workspace jasmine-eth-ts test && yarn workspace jasmine-eth-go test"
   },
   "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/ganache-core": "^2.7.0",
+    "@types/node": "^14.14.12",
     "@types/prompts": "^2.0.9",
     "ganache-cli": "^6.12.1"
   },
   "dependencies": {
     "axios": "^0.21.0",
     "bn.js": "^5.1.3",
+    "chalk": "^4.1.0",
     "ethereumjs-wallet": "^1.0.1",
     "ganache-core": "^2.13.1",
     "prompts": "^2.4.0",

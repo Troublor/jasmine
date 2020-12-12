@@ -7,6 +7,8 @@
     "esModuleInterop": true,
     "strict": true,
     "incremental": true,
+    "sourceRoot": "scripts",
+    "rootDir": "scripts",
     "types": [
       "jest",
       "node"
@@ -14,5 +16,6 @@
   },
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "include": ["scripts/*"]
 }

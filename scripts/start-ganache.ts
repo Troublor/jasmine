@@ -29,6 +29,7 @@ class Logger {
         private readonly logFilePath: string,
         private readonly ignoredRPCs: string[] = []) {
         this.logStream = fs.createWriteStream(logFilePath);
+        console.log("Log file generated at " + logFilePath);
     }
 
     log(data: string) {

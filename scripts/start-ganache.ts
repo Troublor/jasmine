@@ -8,6 +8,7 @@ import {WriteStream} from "fs";
 import path from "path";
 import chalk from "chalk";
 import ganacheCore from "ganache-core";
+import * as tar from "tar";
 
 interface JsonRpcRequest {
     id: number,
@@ -101,9 +102,12 @@ class Logger {
     }
 }
 
-const logDir = path.join(__dirname, "..", "logs");
+const logDir = process.env.JASMINE_LOG ? process.env.JASMINE_LOG : path.join(__dirname, "..", "logs");
 if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir);
+    fs.mkdirSync(logDir, {recursive: true});
+}
+if (!fs.statSync(logDir).isDirectory()) {
+    console.error(`Log path ${logDir} is not a directory`);
 }
 
 function currentTimeString(): string {
@@ -121,7 +125,8 @@ const logger = new Logger(path.join(__dirname, "..", "logs", `private-chain.${cu
         message: "Start a new private blockchain or use an existing one?",
         choices: [
             {title: 'Start a new chain', value: 'new'},
-            {title: 'Using existing chain', value: 'existing'},
+            {title: 'Using existing chain from database path', value: 'existingPath'},
+            {title: 'Using existing chain from backup tarball', value: "existingTarball"}
         ],
         initial: 0,
     });
@@ -139,7 +144,7 @@ const logger = new Logger(path.join(__dirname, "..", "logs", `private-chain.${cu
             return;
         }
         dbPath = response5.dbPath;
-    } else if (response4.startType === "existing") {
+    } else if (response4.startType === "existingPath") {
         const response5 = await prompts({
             type: "text",
             name: "dbPath",
@@ -162,6 +167,42 @@ const logger = new Logger(path.join(__dirname, "..", "logs", `private-chain.${cu
             return;
         }
         dbPath = response5.dbPath;
+    } else if (response4.startType === "existingTarball") {
+        const response6 = await prompts({
+            type: "text",
+            name: "tarballPath",
+            message: "What is the path to backup tarball file?",
+            validate: prev => {
+                if (!fs.existsSync(prev)) {
+                    return "file not exist";
+                }
+                if (!fs.statSync(prev).isFile()) {
+                    return `${prev} is not a file`;
+                }
+                return true;
+            }
+        });
+        if (response6.tarballPath === undefined) {
+            return;
+        }
+        const defaultBlockchainDir = path.join(__dirname, "..", "blockchain");
+        if (!fs.existsSync(defaultBlockchainDir)) {
+            fs.mkdirSync(defaultBlockchainDir, {recursive: true});
+        }
+        if (!fs.statSync(defaultBlockchainDir).isDirectory()) {
+            console.error(`Default Blockchain path ${defaultBlockchainDir} is not a directory`);
+            return;
+        }
+        console.log(chalk.green("Extracting backup tarball..."));
+        dbPath = fs.mkdtempSync(path.join(defaultBlockchainDir, "chain-"));
+        tar.extract(
+            {
+                file: response6.tarballPath,
+                sync: true,
+                cwd: path.join(dbPath)
+            }
+        );
+        console.log(chalk.green(`Chain database backup extracted to ${dbPath}`))
     } else return
 
     let response3 = await prompts({
@@ -252,7 +293,7 @@ const logger = new Logger(path.join(__dirname, "..", "logs", `private-chain.${cu
 
     const closeHandler = function () {
         console.log(chalk.yellow(`Blockchain data is stored at ${dbPath}`));
-        console.log("Set chain database path to this path to restore the blockchain");
+        console.log(chalk.yellow("Set chain database path to this path to restore the blockchain"));
         // graceful shutdown
         server.close(function (err) {
             if (err) {
@@ -262,13 +303,35 @@ const logger = new Logger(path.join(__dirname, "..", "logs", `private-chain.${cu
                 process.exit(0);
             }
         });
-        logger.log("Blockchain stopped");
+        // backup data dir
+        console.log(chalk.green("Backup chain database..."));
+        const backupDir = process.env.JASMINE_BACKUP ? process.env.JASMINE_BACKUP : path.join(__dirname, "..", "backup");
+        if (!fs.existsSync(backupDir)) {
+            fs.mkdirSync(backupDir, {recursive: true});
+        }
+        if (!fs.statSync(backupDir).isDirectory()) {
+            console.error(`Backup path ${backupDir} is not a directory`);
+        }
+        const backupFile = `testnet.${currentTimeString()}.tgz`;
+        tar.create(
+            {
+                gzip: true,
+                sync: true,
+                file: path.join(backupDir, backupFile),
+                preservePaths: false,
+                cwd: dbPath as string
+            },
+            [...fs.readdirSync(dbPath as string)]
+        );
+        console.log(chalk.green("Chain database backup saved to " + path.join(backupDir, backupFile)));
+        console.log(chalk.green("Blockchain stopped"));
         logger.close();
     }
 
-    process.on("SIGINT", closeHandler);
-    process.on("SIGTERM", closeHandler);
-    process.on("SIGHUP", closeHandler);
+    process.on("exit", closeHandler);
+    // process.on("SIGINT", closeHandler);
+    // process.on("SIGTERM", closeHandler);
+    // process.on("SIGHUP", closeHandler);
 
     // @ts-ignore
     server.listen(port, host, listener);

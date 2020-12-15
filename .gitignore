@@ -139,3 +139,4 @@ packages/jasmine-contracts/.DS_Store
 !.yarn/versions
 
 restful.config.yml
+scripts/test.ts

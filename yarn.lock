@@ -9918,7 +9918,7 @@ fsevents@~2.1.2:
   languageName: unknown
   linkType: soft
 
-"jasmine-eth-ts@^1.0.18, jasmine-eth-ts@workspace:packages/jasmine-eth-ts":
+"jasmine-eth-ts@^1.0.19, jasmine-eth-ts@workspace:packages/jasmine-eth-ts":
   version: 0.0.0-use.local
   resolution: "jasmine-eth-ts@workspace:packages/jasmine-eth-ts"
   dependencies:
@@ -9976,7 +9976,7 @@ fsevents@~2.1.2:
     eslint: 7.7.0
     eslint-config-prettier: ^6.10.0
     eslint-plugin-import: ^2.20.1
-    jasmine-eth-ts: ^1.0.18
+    jasmine-eth-ts: ^1.0.19
     jest: 26.4.2
     js-yaml: ^3.14.1
     lodash: ^4.17.20
